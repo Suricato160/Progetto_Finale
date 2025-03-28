@@ -105,3 +105,54 @@ ENGINE = InnoDB;
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
+
+
+USE eCommerce;
+
+
+INSERT INTO `eCommerce`.`users` (`id`, `username`, `password`, `email`, `role`) VALUES
+(1, 'admin', 'admin123', 'admin@example.com', 'ADMIN'),
+(2, 'john_doe', 'password123', 'john.doe@example.com', 'USER')
+
+INSERT INTO `eCommerce`.`categories` (`id`, `name`) VALUES
+(1, 'Chitarre Elettriche'),
+(2, 'Chitarre Acustiche'),
+(3, 'Chitarre Classiche'),
+(4, 'Amplificatori'),
+(5, 'Accessori');
+
+-- Oppure, senza specificare gli id (se AUTO_INCREMENT è attivo):
+INSERT INTO `eCommerce`.`categories` (`name`) VALUES
+('Chitarre Elettriche'),
+('Chitarre Acustiche'),
+('Chitarre Classiche'),
+('Amplificatori'),
+('Accessori');
+
+
+
+INSERT INTO `eCommerce`.`products` (`id`, `name`, `description`, `price`, `stock`, `image_url`, `categories_id`) VALUES
+(1, 'Fender Stratocaster', 'Chitarra elettrica classica', 1299.99, 5, 'https://example.com/fender.jpg', 1),
+(2, 'Gibson Les Paul', 'Chitarra iconica per rock', 1999.99, 3, 'https://example.com/gibson.jpg', 1),
+(3, 'Taylor 214ce', 'Chitarra acustica di qualità', 999.99, 10, 'https://example.com/taylor.jpg', 2);
+
+USE eCommerce;
+INSERT INTO `eCommerce`.`products` (`id`, `name`, `description`, `price`, `stock`, `image_url`, `categories_id`) VALUES
+(1, 'Fender Stratocaster', 'Chitarra elettrica classica', 1299.99, 5, 'https://thumbs.static-thomann.de/thumb//orig/pics/prod/608524.webp', 1),
+(2, 'Gibson Les Paul', 'Chitarra iconica per rock', 1999.99, 3, 'https://thumbs.static-thomann.de/thumb/padthumb600x600/pics/prod/601372.jpg', 1),
+(3, 'Taylor 214ce', 'Chitarra acustica di qualità', 999.99, 10, 'https://thumbs.static-thomann.de/thumb/padthumb600x600/pics/bdb/_48/483303/14969165_800.jpg', 2);
+
+
+USE eCommerce;
+INSERT INTO `eCommerce`.`categories` (`id`,`name`) VALUES
+('1','Chitarre Elettriche'),
+('2','Chitarre Acustiche'),
+('3','Chitarre Classiche'),
+('4','Amplificatori'),
+('5','Accessori');
+
+INSERT INTO `eCommerce`.`products` (`id`, `name`, `description`, `price`, `stock`, `image_url`, `categories_id`) VALUES
+(1, 'Fender Stratocaster', 'Chitarra elettrica classica', 1299.99, 5, 'https://thumbs.static-thomann.de/thumb//orig/pics/prod/608524.webp', 1),
+(2, 'Gibson Les Paul', 'Chitarra iconica per rock', 1999.99, 3, 'https://thumbs.static-thomann.de/thumb/padthumb600x600/pics/prod/601372.jpg', 1),
+(3, 'Taylor 214ce', 'Chitarra acustica di qualità', 999.99, 10, 'https://thumbs.static-thomann.de/thumb/padthumb600x600/pics/bdb/_48/483303/14969165_800.jpg', 2);
