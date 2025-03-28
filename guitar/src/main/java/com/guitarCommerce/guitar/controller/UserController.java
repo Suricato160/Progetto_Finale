@@ -22,7 +22,7 @@ public class UserController {
     public String getAllUsers(Model model) {
         List<User> users = userService.getAllUsers();
         model.addAttribute("users", users);
-        return "list"; // Nome del template Thymeleaf (es. users/list.html)
+        return "users/list"; // Nome del template Thymeleaf (es. users/list.html)
     }
 
     // Mostra i dettagli di un utente

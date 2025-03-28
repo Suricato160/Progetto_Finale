@@ -2,12 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Guitar Commerce - Home</title>
+    <title>Guitar Commerce - Dettaglio Ordine</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .product-card { border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; text-align: center; }
-        .product-card img { max-width: 100%; height: auto; }
-    </style>
 </head>
 <body>
     <!-- Navbar -->
@@ -39,26 +35,43 @@
         </div>
     </nav>
 
-    <!-- Header -->
-    <header class="bg-light text-center py-5">
-        <h1>Benvenuto su Guitar Commerce</h1>
-        <p>Il tuo negozio online per chitarre di alta qualità</p>
-    </header>
-
-    <!-- Sezione prodotti in evidenza -->
+    <!-- Contenuto principale -->
     <section class="container my-5">
-        <h2>Prodotti in Evidenza</h2>
+        <h1>Dettaglio Ordine #<span th:text="${order.id}"></span></h1>
         <div class="row">
-            <div class="col-md-4" th:each="product : ${products}">
-                <div class="product-card">
-                    <img th:src="${product.imageUrl}" alt="Immagine prodotto" th:unless="${product.imageUrl == null}" />
-                    <h3 th:text="${product.name}">Nome Prodotto</h3>
-                    <p th:text="${product.description}">Descrizione breve</p>
-                    <p><strong>Prezzo:</strong> <span th:text="${product.price}">0.00</span> €</p>
-                    <a th:href="@{/products/{id}(id=${product.id})}" class="btn btn-primary">Dettagli</a>
-                </div>
+            <div class="col-md-6">
+                <h3>Informazioni Ordine</h3>
+                <p><strong>Utente:</strong> <span th:text="${order.user.username}"></span></p>
+                <p><strong>Data:</strong> <span th:text="${order.orderDate}"></span></p>
+                <p><strong>Totale:</strong> <span th:text="${order.totalAmount} + ' €'"></span></p>
+                <p><strong>Stato:</strong> <span th:text="${order.status}"></span></p>
+            </div>
+            <div class="col-md-6">
+                <h3>Indirizzi</h3>
+                <p><strong>Fatturazione:</strong> Via Esempio 123, 00100 Roma</p>
+                <p><strong>Spedizione:</strong> Via Esempio 123, 00100 Roma</p>
             </div>
         </div>
+
+        <h3>Prodotti Acquistati</h3>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Prodotto</th>
+                    <th>Quantità</th>
+                    <th>Prezzo Unitario</th>
+                    <th>Totale</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="detail : ${order.orderDetails}">
+                    <td th:text="${detail.product.name}"></td>
+                    <td th:text="${detail.quantity}"></td>
+                    <td th:text="${detail.product.price} + ' €'"></td>
+                    <td th:text="${detail.product.price * detail.quantity} + ' €'"></td>
+                </tr>
+            </tbody>
+        </table>
     </section>
 
     <!-- Footer -->
