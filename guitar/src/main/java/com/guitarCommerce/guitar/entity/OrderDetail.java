@@ -13,16 +13,16 @@ import lombok.Data;
 
 
 @Entity
-@Data
 @Table(name = "order_details")
+@Data
 public class OrderDetail {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    @Column(name = "id")
+    private Integer id;
 
-    @Column(name = "quantity")
-    private int quantity;
+    @Column(name = "quantity", nullable = false)
+    private Integer quantity;
 
 
 

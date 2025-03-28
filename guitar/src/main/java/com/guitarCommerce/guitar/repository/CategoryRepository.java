@@ -14,6 +14,7 @@ public interface CategoryRepository extends JpaRepository<Category, Integer>{
     //Query per trovare una categoria per nome
     Optional<Category> findByName(String name);
 
+
     
 } 
 

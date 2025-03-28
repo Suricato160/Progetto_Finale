@@ -1,5 +1,6 @@
 package com.guitarCommerce.guitar.entity;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -27,11 +28,11 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "order_date")
-    private String orderDate;
+   @Column(name = "order_date")
+    private LocalDateTime orderDate; 
 
     @Column(name = "total_amount")
-    private String totalAmount;
+    private Double totalAmount;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
