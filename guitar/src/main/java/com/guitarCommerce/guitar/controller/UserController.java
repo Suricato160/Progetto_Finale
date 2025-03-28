@@ -11,7 +11,7 @@ import com.guitarCommerce.guitar.service.UserService;
 import java.util.List;
 
 @Controller
-@RequestMapping("/")
+@RequestMapping("/users")
 public class UserController {
 
     @Autowired
