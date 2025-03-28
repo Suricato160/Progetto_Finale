@@ -1,13 +1,16 @@
 package com.guitarCommerce.guitar.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.guitarCommerce.guitar.entity.Category;
 import com.guitarCommerce.guitar.entity.Product;
 import com.guitarCommerce.guitar.repository.ProductRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ResourceUtils;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -21,23 +24,59 @@ public class ProductService {
 
     // Trova tutti i prodotti
     public List<Product> getAllProducts() {
-        return productRepository.findAll();
+        List<Product> products = productRepository.findAll();
+        products.forEach(this::loadProductImages); // Carica le immagini per ogni prodotto
+        return products;
     }
 
     // Trova un prodotto per ID
     public Product getProductById(Integer id) {
-        return productRepository.findById(id)
+        Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+        loadProductImages(product); // Carica le immagini per il prodotto
+        return product;
     }
 
     // Trova prodotti per categoria
     public List<Product> getProductsByCategory(Integer categoryId) {
-        return productRepository.findByCategoryId(categoryId);
+        List<Product> products = productRepository.findByCategoryId(categoryId);
+        products.forEach(this::loadProductImages); // Carica le immagini
+        return products;
     }
 
     // Cerca prodotti per nome
     public List<Product> searchProductsByName(String name) {
-        return productRepository.findByNameContainingIgnoreCase(name);
+        List<Product> products = productRepository.findByNameContainingIgnoreCase(name);
+        products.forEach(this::loadProductImages); // Carica le immagini
+        return products;
+    }
+
+    // Metodo per caricare le immagini dalla cartella
+    private void loadProductImages(Product product) {
+        List<String> imageFiles = new ArrayList<>();
+        try {
+            // Costruisci il percorso della cartella (es. classpath:static/products/004/)
+            String folderPath = "classpath:static" + product.getImageUrl();
+            File folder = ResourceUtils.getFile(folderPath);
+
+            if (folder.exists() && folder.isDirectory()) {
+                // Elenca tutti i file nella cartella
+                File[] files = folder.listFiles((dir, name) -> {
+                    String lowerName = name.toLowerCase();
+                    return lowerName.endsWith(".jpg") || lowerName.endsWith(".png") || lowerName.endsWith(".jpeg");
+                });
+                if (files != null) {
+                    Arrays.sort(files); // Ordina i file per nome
+                    for (File file : files) {
+                        // Aggiungi il nome del file al percorso base (es. /products/004/immagine1.jpg)
+                        imageFiles.add(product.getImageUrl() + "/" + file.getName());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Errore nel caricamento delle immagini per " + product.getImageUrl() + ": " + e.getMessage());
+        }
+        product.setAdditionalImages(imageFiles);
     }
 
     // Crea un nuovo prodotto

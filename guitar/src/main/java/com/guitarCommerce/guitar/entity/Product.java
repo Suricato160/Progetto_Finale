@@ -2,6 +2,7 @@ package com.guitarCommerce.guitar.entity;
 
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.*;
@@ -31,6 +32,22 @@ public class Product {
 
     @Column(name = "image_url", length = 255)
     private String imageUrl;
+
+
+
+
+
+    @Column(name = "brand")
+    private String brand;
+
+    @Column(name = "reviews_count")
+    private Integer reviewsCount = 0;
+
+
+    // Campo transitorio per le immagini aggiuntive
+    @Transient
+    private List<String> additionalImages = new ArrayList<>();
+
 
 
 
