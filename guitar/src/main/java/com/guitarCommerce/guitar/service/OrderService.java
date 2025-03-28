@@ -1,5 +1,6 @@
 package com.guitarCommerce.guitar.service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -53,17 +54,16 @@ public class OrderService {
         order.setUser(user);
         order.setOrderDate(LocalDateTime.now()); // Ora funziona con LocalDateTime
         order.setStatus(Order.Status.PENDING);
-        
-        // Calcola il totale sommando i dettagli dell'ordine
-        double totalAmount = orderDetails.stream()
-                .mapToDouble(detail -> detail.getProduct().getPrice() * detail.getQuantity())
-                .sum();
-        order.setTotalAmount(totalAmount); // Funziona con Double
 
-        // Salva l'ordine
+        // Calcola il totale sommando i dettagli dell'ordine
+        BigDecimal totalAmount = orderDetails.stream()
+                .map(detail -> detail.getProduct().getPrice() // Ora BigDecimal
+                        .multiply(BigDecimal.valueOf(detail.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        order.setTotalAmount(totalAmount);
+
         Order savedOrder = orderRepository.save(order);
 
-        // Associa e salva i dettagli dell'ordine
         orderDetails.forEach(detail -> {
             detail.setOrder(savedOrder);
             orderDetailService.createOrderDetail(detail);
@@ -71,6 +71,7 @@ public class OrderService {
 
         return savedOrder;
     }
+
 
     // Aggiorna lo stato di un ordine
     @Transactional

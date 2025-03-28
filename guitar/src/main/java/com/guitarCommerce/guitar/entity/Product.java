@@ -1,13 +1,14 @@
 package com.guitarCommerce.guitar.entity;
 
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
-@Table(name = "producs")
+@Table(name = "products")
 @Data
 public class Product {
 
@@ -23,7 +24,7 @@ public class Product {
     private String description;
 
     @Column(name = "price")
-    private Double price;
+    private BigDecimal price;
 
     @Column(name = "stock")
     private int stock;

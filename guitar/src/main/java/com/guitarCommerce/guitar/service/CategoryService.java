@@ -9,7 +9,8 @@ import org.springframework.stereotype.Service;
 import com.guitarCommerce.guitar.entity.Category;
 import com.guitarCommerce.guitar.repository.CategoryRepository;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
+
 
 @Service
 public class CategoryService {

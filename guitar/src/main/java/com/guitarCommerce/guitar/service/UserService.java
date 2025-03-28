@@ -3,11 +3,14 @@ package com.guitarCommerce.guitar.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.guitarCommerce.guitar.entity.User;
 import com.guitarCommerce.guitar.repository.UserRepository;
 
+
+@Service
 public class UserService {
 
     @Autowired
