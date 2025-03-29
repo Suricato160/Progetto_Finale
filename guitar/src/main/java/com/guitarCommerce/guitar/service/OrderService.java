@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,9 +33,11 @@ public class OrderService {
 
     // Trova un ordine per ID
     public Order getOrderById(Integer id) {
-        return orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
-    }
+    Order order = orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Ordine non trovato"));
+    Hibernate.initialize(order.getOrderDetails());
+    order.getOrderDetails().forEach(detail -> Hibernate.initialize(detail.getProduct()));
+    return order;
+}
 
     // Trova ordini per utente
     public List<Order> getOrdersByUser(Integer userId) {

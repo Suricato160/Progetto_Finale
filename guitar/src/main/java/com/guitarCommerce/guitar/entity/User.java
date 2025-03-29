@@ -33,9 +33,14 @@ public class User {
     @Column(name = "email", length = 100)
     private String email;
 
-    @Enumerated(EnumType.STRING)
-	@Column(name = "role")
-	private Role role;
+	@Column(name = "role", nullable = false)
+    private String role = "USER"; // Default a "USER"
+
+
+    private String street;
+    private String city;
+    private String postalCode;
+    private String country;
     
     public enum Role {
 		ADMIN, USER

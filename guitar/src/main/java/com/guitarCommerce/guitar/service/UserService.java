@@ -27,8 +27,9 @@ public class UserService {
     }
 
      //Trova un utente per usarname
-     public User getUserByUser(Integer username) {
-        return userRepository.findById(username).orElseThrow(() -> new RuntimeException("User non trovato con username: "+ username));
+     public User findByUsername(String username) {
+        return userRepository.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("User non trovato con username: " + username));
     }
 
 
@@ -57,6 +58,11 @@ public class UserService {
            user.setRole(updatedUser.getRole());
            return userRepository.save(user);
        }
+
+       @Transactional
+    public User save(User user) {
+        return userRepository.save(user);
+    }
    
        // Elimina un utente
        @Transactional
