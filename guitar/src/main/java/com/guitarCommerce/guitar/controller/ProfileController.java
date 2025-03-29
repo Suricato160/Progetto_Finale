@@ -63,4 +63,13 @@ public class ProfileController {
         userService.save(currentUser);
         return "redirect:/profile";
     }
+
+
+    @PostMapping("/update-phone")
+    public String updatePhone(@ModelAttribute("user") User user) {
+        User currentUser = userService.getCurrentUser();
+        currentUser.setPhone(user.getPhone()); // Aggiorna solo il campo telefono
+        userService.updateUser(currentUser);
+        return "redirect:/profile";
+    }
 }

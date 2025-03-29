@@ -37,10 +37,26 @@ public class User {
     private String role = "USER"; // Default a "USER"
 
 
+    @Column(name = "first_name")
+    private String firstName;
+
+    @Column(name = "last_name")
+    private String lastName;
+
+    @Column(name = "street")
     private String street;
+
+    @Column(name = "city")
     private String city;
+
+    @Column(name = "postal_code")
     private String postalCode;
+
+    @Column(name = "country")
     private String country;
+
+    @Column(name = "phone")
+    private String phone;
     
     public enum Role {
 		ADMIN, USER

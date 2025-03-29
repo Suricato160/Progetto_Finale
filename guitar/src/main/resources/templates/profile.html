@@ -50,7 +50,55 @@
                 <h5 class="card-title">Informazioni Personali</h5>
                 <p><strong>Username:</strong> <span th:text="${user.username}">username</span></p>
                 <p><strong>Email:</strong> <span th:text="${user.email}">email@example.com</span></p>
-                <p><strong>Ruolo:</strong> <span th:text="${user.role}">USER</span></p>
+            </div>
+        </div>
+
+        <!-- Cambio Username -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Username</h5>
+                <form th:action="@{/profile/change-username}" method="post">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="username" class="form-control" id="username" name="username" required>
+                    </div>
+                    <button type="submit" class="btn" style="background-color: #c51d17; color: #fff;">Cambia Username</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Cambio mail -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Cambia mail</h5>
+                <form th:action="@{/profile/change-mail}" method="post">
+                    <div class="mb-3">
+                        <label for="currentMail" class="form-label">Mail attuale</label>
+                        <input type="mail" class="form-control" id="currentMail" name="currentMail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="newMail" class="form-label">Nuova mail</label>
+                        <input type="Mail" class="form-control" id="newPassword" name="newMail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirmMail" class="form-label">Conferma nuova mail</label>
+                        <input type="mail" class="form-control" id="confirmMail" name="confirmMail" required>
+                    </div>
+                    <button type="submit" class="btn" style="background-color: #c51d17; color: #fff;">Aggiorna Mail</button>
+                </form>
+            </div>
+        </div>
+
+         <!-- Cambio Telefono -->
+         <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Telefono: <span th:text="${user.phone != null ? user.phone : 'Non impostato'}">Non impostato</span></h5>                <form th:action="@{/profile/update-phone}" method="post" th:object="${user}">
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">Numero di Telefono</label>
+                        <input type="tel" class="form-control" id="phone" th:field="*{phone}" required>
+                    </div>
+                    <button type="submit" class="btn" style="background-color: #c51d17; color: #fff;">Aggiorna Telefono</button>
+                </form>
             </div>
         </div>
 
@@ -76,11 +124,20 @@
             </div>
         </div>
 
+
         <!-- Indirizzo (spedizione e fatturazione) -->
         <div class="card mb-4">
             <div class="card-body">
                 <h5 class="card-title">Indirizzo (Spedizione e Fatturazione)</h5>
-                <form th:action="@{/profile/update-address}" method="post" th:object="${user}">
+                <form th:action="@{/profile/update-name}" method="post" th:object="${user}">
+                    <div class="mb-3">
+                        <label for="firstName" class="form-label">Nome</label>
+                        <input type="text" class="form-control" id="firstName" th:field="*{firstName}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="lastName" class="form-label">Cognome</label>
+                        <input type="text" class="form-control" id="lastName" th:field="*{lastName}" required>
+                    </div>
                     <div class="mb-3">
                         <label for="street" class="form-label">Via</label>
                         <input type="text" class="form-control" id="street" th:field="*{street}" required>
@@ -97,7 +154,7 @@
                         <label for="country" class="form-label">Paese</label>
                         <input type="text" class="form-control" id="country" th:field="*{country}" required>
                     </div>
-                    <button type="submit" class="btn" style="background-color: #c51d17; color: #fff;">Aggiorna Indirizzo</button>
+                    <button type="submit" class="btn" style="background-color: #c51d17; color: #fff;">Aggiorna Profilo</button>
                 </form>
             </div>
         </div>
