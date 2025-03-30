@@ -5,7 +5,6 @@ import com.guitarCommerce.guitar.service.UserService;
 
 import java.security.Principal;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -47,7 +46,7 @@ public class ProfileController {
             redirectAttributes.addFlashAttribute("error", "Le nuove password non coincidono");
         } else {
             user.setPassword(passwordEncoder.encode(newPassword));
-            userService.save(user);
+            userService.updateUser(user);
             redirectAttributes.addFlashAttribute("success", "Password aggiornata con successo");
         }
         return "redirect:/profile";
@@ -60,7 +59,7 @@ public class ProfileController {
         currentUser.setCity(user.getCity());
         currentUser.setPostalCode(user.getPostalCode());
         currentUser.setCountry(user.getCountry());
-        userService.save(currentUser);
+        userService.updateUser(currentUser);
         return "redirect:/profile";
     }
 
