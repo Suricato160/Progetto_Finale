@@ -83,4 +83,9 @@ public class UserService {
         User user = getUserById(id);
         userRepository.delete(user);
     }
+
+    public boolean isPhoneNumberInUse(String phone, int id) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'isPhoneNumberInUse'");
+    }
 }

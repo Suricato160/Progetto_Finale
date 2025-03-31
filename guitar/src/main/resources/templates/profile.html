@@ -47,16 +47,34 @@
         <!-- Informazioni personali -->
         <div class="card mb-4">
             <div class="card-body">
-                <h5 class="card-title">Informazioni Personali</h5>
-                <p><strong>Username:</strong> <span th:text="${user.username}">username</span></p>
-                <p><strong>Email:</strong> <span th:text="${user.email}">email@example.com</span></p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="card-title">Informazioni Personali</h5>
+                        <p><strong>Username:</strong> <span th:text="${user.username}">username</span></p>
+                        <p><strong>Email:</strong> <span th:text="${user.email}">email@example.com</span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <h5 class="card-title">Dati di Spedizione</h5>
+                        <p><strong>Nome Cognome:</strong> <span th:text="${user.firstName} + ' ' + ${user.lastName}">Nome Cognome</span></p>
+                        <p><strong>Numero di Telefono:</strong> <span th:text="${user.phone}">Numero di Telefono</span></p>
+                        <p><strong>Indirizzo:</strong> <span th:text="${user.street}">Indirizzo</span></p>
+                        <p><strong>Città:</strong> <span th:text="${user.city}">Città</span></p>
+                        <p><strong>Codice Postale:</strong> <span th:text="${user.postalCode}">Codice Postale</span></p>
+                        <p><strong>Nazione:</strong> <span th:text="${user.country}">Nazione</span></p>
+                    </div>
+                </div>
             </div>
         </div>
+        
 
         <!-- Cambio Username -->
         <div class="card mb-4">
             <div class="card-body">
                 <h5 class="card-title">Username</h5>
+
+                <div th:if="${errorUsername}" class="alert alert-danger" th:text="${errorUsername}"></div>
+                <div th:if="${successUsername}" class="alert alert-success" th:text="${successUsername}"></div>
+
                 <form th:action="@{/profile/change-username}" method="post">
                     <div class="mb-3">
                         <label for="username" class="form-label">Username</label>
@@ -67,27 +85,56 @@
             </div>
         </div>
 
-        <!-- Cambio mail -->
+        <!-- Cambio password -->
         <div class="card mb-4">
             <div class="card-body">
-                <h5 class="card-title">Cambia mail</h5>
-                <form th:action="@{/profile/change-mail}" method="post">
-                    <div class="mb-3">
-                        <label for="currentMail" class="form-label">Mail attuale</label>
-                        <input type="mail" class="form-control" id="currentMail" name="currentMail" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="newMail" class="form-label">Nuova mail</label>
-                        <input type="Mail" class="form-control" id="newPassword" name="newMail" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="confirmMail" class="form-label">Conferma nuova mail</label>
-                        <input type="mail" class="form-control" id="confirmMail" name="confirmMail" required>
-                    </div>
-                    <button type="submit" class="btn" style="background-color: #c51d17; color: #fff;">Aggiorna Mail</button>
-                </form>
+                <h5 class="card-title">Cambia Password</h5>
+
+                <div th:if="${errorPassword}" class="alert alert-danger" th:text="${errorPassword}"></div>
+                <div th:if="${successPassword}" class="alert alert-success" th:text="${successPassword}"></div>
+
+                    <form th:action="@{/profile/change-password}" method="post">
+                        <div class="mb-3">
+                            <label for="currentPassword" class="form-label">Password attuale</label>
+                            <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newPassword" class="form-label">Nuova password</label>
+                            <input type="password" class="form-control" id="newPassword" name="newPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">Conferma nuova password</label>
+                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                        </div>
+                        <button type="submit" class="btn" style="background-color: #c51d17; color: #fff;">Aggiorna Password</button>
+                    </form>
+                </div>
             </div>
-        </div>
+
+        <!-- Cambio mail -->
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Cambia mail</h5>
+
+                        <div th:if="${errorEmail}" class="alert alert-danger" th:text="${errorEmail}"></div>
+                        <div th:if="${successEmail}" class="alert alert-success" th:text="${successEmail}"></div>
+                    
+                    <form th:action="@{/profile/change-Email}" method="post">
+                        <div class="mb-3">
+                            <label for="currentMail" class="form-label">Mail attuale</label>
+                            <input type="mail" class="form-control" id="currentMail" name="currentMail" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="newMail" class="form-label">Nuova mail</label>
+                            <input type="mail" class="form-control" id="newMail" name="newMail" required>
+                        </div>
+                        <button type="submit" class="btn" style="background-color: #c51d17; color: #fff;">Aggiorna Mail</button>
+                    </form>
+                </div>
+            </div>
+
 
          <!-- Cambio Telefono -->
          <div class="card mb-4">
@@ -101,29 +148,6 @@
                 </form>
             </div>
         </div>
-
-        <!-- Cambio password -->
-        <div class="card mb-4">
-            <div class="card-body">
-                <h5 class="card-title">Cambia Password</h5>
-                <form th:action="@{/profile/change-password}" method="post">
-                    <div class="mb-3">
-                        <label for="currentPassword" class="form-label">Password attuale</label>
-                        <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="newPassword" class="form-label">Nuova password</label>
-                        <input type="password" class="form-control" id="newPassword" name="newPassword" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="confirmPassword" class="form-label">Conferma nuova password</label>
-                        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
-                    </div>
-                    <button type="submit" class="btn" style="background-color: #c51d17; color: #fff;">Aggiorna Password</button>
-                </form>
-            </div>
-        </div>
-
 
         <!-- Indirizzo (spedizione e fatturazione) -->
         <div class="card mb-4">

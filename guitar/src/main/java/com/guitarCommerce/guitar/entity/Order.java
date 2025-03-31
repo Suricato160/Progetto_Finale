@@ -42,7 +42,7 @@ public class Order {
 
     // enum per lo status dell'ordine
     public enum Status{
-        PENDING, SHIPPED, DELIVERED
+        PENDING, SHIPPED, DELIVERED, CANCELLED, FAILED
     }
 
 
