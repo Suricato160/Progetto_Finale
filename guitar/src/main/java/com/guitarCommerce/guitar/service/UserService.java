@@ -1,6 +1,7 @@
 package com.guitarCommerce.guitar.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -51,7 +52,6 @@ public class UserService {
     // Creazione di un nuovo utente
     @Transactional
     public User createUser(User user) {
-        // Se username già esistente solleva un'eccezione
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
             throw new RuntimeException("Username già in uso");
         }
@@ -75,8 +75,6 @@ public class UserService {
         return userRepository.save(user);
     }
 
-   
-
     // Elimina un utente
     @Transactional
     public void deleteUser(Integer id) {
@@ -84,8 +82,16 @@ public class UserService {
         userRepository.delete(user);
     }
 
-    public boolean isPhoneNumberInUse(String phone, int id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isPhoneNumberInUse'");
+    // Verifica se il numero di telefono è già in uso da un altro utente
+    public boolean isPhoneNumberInUse(String phone, Integer currentUserId) {
+        Optional<User> existingUser = userRepository.findByPhone(phone);
+        return existingUser.isPresent() && existingUser.get().getId() != currentUserId;
+    }
+
+    // Metodo per validare il formato del numero di telefono
+    public boolean isValidPhoneNumber(String phoneNumber) {
+        // Espressione regolare per numeri di telefono (personalizzabile)
+        String phoneRegex = "^\\+?[0-9]{1,3}?\\s?\\(?([0-9]{1,3}?)\\)?[\\s.-]?[0-9]{1,4}[\\s.-]?[0-9]{1,4}[\\s.-]?[0-9]{1,9}$";
+        return phoneNumber != null && phoneNumber.matches(phoneRegex);
     }
 }

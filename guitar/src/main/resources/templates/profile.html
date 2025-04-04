@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <title>Guitar Commerce - Profilo</title>
     <link rel="stylesheet" href="/css/styles.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+
 <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -50,13 +52,17 @@
                 <div class="row">
                     <div class="col-md-6">
                         <h5 class="card-title">Informazioni Personali</h5>
-                        <p><strong>Username:</strong> <span th:text="${user.username}">username</span></p>
+                        <p><strong>Username:</strong> <span th:if="${user != null}" th:text="${user.username}">Nome
+                                utente non disponibile</span><span th:unless="${user != null}">Errore: Utente non
+                                caricato</span>
                         <p><strong>Email:</strong> <span th:text="${user.email}">email@example.com</span></p>
                     </div>
                     <div class="col-md-6">
                         <h5 class="card-title">Dati di Spedizione</h5>
-                        <p><strong>Nome Cognome:</strong> <span th:text="${user.firstName} + ' ' + ${user.lastName}">Nome Cognome</span></p>
-                        <p><strong>Numero di Telefono:</strong> <span th:text="${user.phone}">Numero di Telefono</span></p>
+                        <p><strong>Nome Cognome:</strong> <span
+                                th:text="${user.firstName} + ' ' + ${user.lastName}">Nome Cognome</span></p>
+                        <p><strong>Numero di Telefono:</strong> <span th:text="${user.phone}">Numero di Telefono</span>
+                        </p>
                         <p><strong>Indirizzo:</strong> <span th:text="${user.street}">Indirizzo</span></p>
                         <p><strong>Città:</strong> <span th:text="${user.city}">Città</span></p>
                         <p><strong>Codice Postale:</strong> <span th:text="${user.postalCode}">Codice Postale</span></p>
@@ -65,7 +71,7 @@
                 </div>
             </div>
         </div>
-        
+
 
         <!-- Cambio Username -->
         <div class="card mb-4">
@@ -80,7 +86,8 @@
                         <label for="username" class="form-label">Username</label>
                         <input type="username" class="form-control" id="username" name="username" required>
                     </div>
-                    <button type="submit" class="btn" style="background-color: #c51d17; color: #fff;">Cambia Username</button>
+                    <button type="submit" class="btn" style="background-color: #c51d17; color: #fff;">Cambia
+                        Username</button>
                 </form>
             </div>
         </div>
@@ -93,58 +100,67 @@
                 <div th:if="${errorPassword}" class="alert alert-danger" th:text="${errorPassword}"></div>
                 <div th:if="${successPassword}" class="alert alert-success" th:text="${successPassword}"></div>
 
-                    <form th:action="@{/profile/change-password}" method="post">
-                        <div class="mb-3">
-                            <label for="currentPassword" class="form-label">Password attuale</label>
-                            <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="newPassword" class="form-label">Nuova password</label>
-                            <input type="password" class="form-control" id="newPassword" name="newPassword" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="confirmPassword" class="form-label">Conferma nuova password</label>
-                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
-                        </div>
-                        <button type="submit" class="btn" style="background-color: #c51d17; color: #fff;">Aggiorna Password</button>
-                    </form>
-                </div>
+                <form th:action="@{/profile/change-password}" method="post">
+                    <div class="mb-3">
+                        <label for="currentPassword" class="form-label">Password attuale</label>
+                        <input type="password" class="form-control" id="currentPassword" name="currentPassword"
+                            required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="newPassword" class="form-label">Nuova password</label>
+                        <input type="password" class="form-control" id="newPassword" name="newPassword" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirmPassword" class="form-label">Conferma nuova password</label>
+                        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword"
+                            required>
+                    </div>
+                    <button type="submit" class="btn" style="background-color: #c51d17; color: #fff;">Aggiorna
+                        Password</button>
+                </form>
             </div>
+        </div>
 
         <!-- Cambio mail -->
-            
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h5 class="card-title">Cambia mail</h5>
 
-                        <div th:if="${errorEmail}" class="alert alert-danger" th:text="${errorEmail}"></div>
-                        <div th:if="${successEmail}" class="alert alert-success" th:text="${successEmail}"></div>
-                    
-                    <form th:action="@{/profile/change-Email}" method="post">
-                        <div class="mb-3">
-                            <label for="currentMail" class="form-label">Mail attuale</label>
-                            <input type="mail" class="form-control" id="currentMail" name="currentMail" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="newMail" class="form-label">Nuova mail</label>
-                            <input type="mail" class="form-control" id="newMail" name="newMail" required>
-                        </div>
-                        <button type="submit" class="btn" style="background-color: #c51d17; color: #fff;">Aggiorna Mail</button>
-                    </form>
-                </div>
-            </div>
-
-
-         <!-- Cambio Telefono -->
-         <div class="card mb-4">
+        <div class="card mb-4">
             <div class="card-body">
-                <h5 class="card-title">Telefono: <span th:text="${user.phone != null ? user.phone : 'Non impostato'}">Non impostato</span></h5>                <form th:action="@{/profile/update-phone}" method="post" th:object="${user}">
+                <h5 class="card-title">Cambia mail</h5>
+
+                <div th:if="${errorEmail}" class="alert alert-danger" th:text="${errorEmail}"></div>
+                <div th:if="${successEmail}" class="alert alert-success" th:text="${successEmail}"></div>
+
+                <form th:action="@{/profile/change-Email}" method="post">
+                    <div class="mb-3">
+                        <label for="currentMail" class="form-label">Mail attuale</label>
+                        <input type="mail" class="form-control" id="currentMail" name="currentMail" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="newMail" class="form-label">Nuova mail</label>
+                        <input type="mail" class="form-control" id="newMail" name="newMail" required>
+                    </div>
+                    <button type="submit" class="btn" style="background-color: #c51d17; color: #fff;">Aggiorna
+                        Mail</button>
+                </form>
+            </div>
+        </div>
+
+
+        <!-- Cambio Telefono -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Numero di Telefono</h5><span th:text="${user.phone != null ? user.phone : 'Non impostato'}">Non impostato</span></h5>
+        
+                <div th:if="${errorPhone}" class="alert alert-danger" th:text="${errorPhone}"></div>
+                <div th:if="${successPhone}" class="alert alert-success" th:text="${successPhone}"></div>
+        
+                <form th:action="@{/profile/update-phone}" method="post" th:object="${user}">
                     <div class="mb-3">
                         <label for="phone" class="form-label">Numero di Telefono</label>
-                        <input type="tel" class="form-control" id="phone" th:field="*{phone}" required>
+                        <input type="text" class="form-control" id="phone" name="phone" th:field="*{phone}" required>
                     </div>
-                    <button type="submit" class="btn" style="background-color: #c51d17; color: #fff;">Aggiorna Telefono</button>
+                    <button type="submit" class="btn" style="background-color: #c51d17; color: #fff;">Aggiorna Numero</button>
                 </form>
             </div>
         </div>
@@ -178,7 +194,8 @@
                         <label for="country" class="form-label">Paese</label>
                         <input type="text" class="form-control" id="country" th:field="*{country}" required>
                     </div>
-                    <button type="submit" class="btn" style="background-color: #c51d17; color: #fff;">Aggiorna Profilo</button>
+                    <button type="submit" class="btn" style="background-color: #c51d17; color: #fff;">Aggiorna
+                        Profilo</button>
                 </form>
             </div>
         </div>
@@ -191,4 +208,5 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

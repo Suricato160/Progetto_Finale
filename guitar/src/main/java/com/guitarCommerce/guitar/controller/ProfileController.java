@@ -15,6 +15,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Controller
 @RequestMapping("/profile")
 public class ProfileController {
@@ -25,6 +34,9 @@ public class ProfileController {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
     }
+
+// =====================================================================
+//              Dati del Profilo Utente
 
     @GetMapping
     public String showProfile(Model model, Principal principal) {
@@ -40,39 +52,72 @@ public class ProfileController {
 
 
 
-// -------------------- USERNAME ----------------- fatto
-@GetMapping("/update-username")
+// -------------------- USERNAME ----------------- fatto - controllato 
+@PostMapping("/change-username")
 public String updateUsername(@RequestParam String username, Model model, Principal principal) {
-    // Recupera l'utente corrente
-    User currentUser = userService.findByUsername(principal.getName());
+    Logger logger = LoggerFactory.getLogger(this.getClass());
+    logger.info("Username dal Principal: {}", principal.getName());
+    logger.info("Nuovo username richiesto: {}", username);
 
-    // Verifica se esiste un altro utente con lo stesso username
-    User existingUser = userService.findByUsername(username);
+    
+    
+    try {
+        // Recupera l'utente corrente
+        User currentUser = userService.findByUsername(principal.getName());
 
-    if (existingUser != null) {
-        if (existingUser.getId() == currentUser.getId()) {
-            // Se l'utente sta cercando di impostare il proprio username attuale
-            model.addAttribute("errorUsername", "È il tuo username attuale.");
-        } else {
-            // Se esiste un altro utente con lo stesso username
-            model.addAttribute("errorUsername", "Username già in uso.");
+        // nel caso non trovasse un utente, non dovrebbe succedere...
+        if (currentUser == null) {
+            model.addAttribute("error", "Errore: Utente non trovato. Riprova o contatta l'assistenza.");
+            model.addAttribute("errorUsername", "Errore: Utente non trovato. Riprova o contatta l'assistenza.");
+            return "profile";
         }
-    } else {
-        // Aggiorna il username dell'utente corrente
-        currentUser.setUsername(username);
-        userService.updateUser(currentUser);
 
-        // Aggiungi un messaggio di successo
-        model.addAttribute("successUsername", "Username aggiornato con successo.");
+        // Verifica se esiste un altro utente con lo stesso username
+        User existingUser = userService.findByUsername(username);
+
+        if (existingUser != null) {
+            if (existingUser.getId() == currentUser.getId()) {
+                model.addAttribute("error", "È il tuo username attuale.");
+                model.addAttribute("errorUsername", "È il tuo username attuale.");
+            } else {
+                model.addAttribute("error", "Username già in uso.");
+                model.addAttribute("errorUsername", "Username già in uso.");
+            }
+        } else {
+            // Aggiorna il username dell'utente corrente
+            currentUser.setUsername(username);
+            userService.updateUser(currentUser);
+
+            // --------- Aggiorna il contesto di autenticazione -------------
+            // Recupera l'autenticazione corrente dal contesto di sicurezza.
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            // Crea un nuovo oggetto UserDetails con il nuovo nome utente (username), la password esistente e i ruoli/autorizzazioni correnti (auth.getAuthorities()).
+            UserDetails userDetails = new org.springframework.security.core.userdetails.User(
+                username, currentUser.getPassword(), auth.getAuthorities());
+            // Crea una nuova autenticazione con i dettagli aggiornati.
+            Authentication newAuth = new UsernamePasswordAuthenticationToken(userDetails, auth.getCredentials(), auth.getAuthorities());
+            // mposta il nuovo oggetto di autenticazione nel contesto di sicurezza.
+            SecurityContextHolder.getContext().setAuthentication(newAuth);
+
+            logger.info("Contesto di sicurezza aggiornato con nuovo username: {}", username);
+            // Aggiungi un messaggio di successo
+            model.addAttribute("success", "Username aggiornato con successo.");
+            model.addAttribute("successUsername", "Username aggiornato con successo.");
+        }
+
+        // Aggiungi l'utente aggiornato al modello
+        model.addAttribute("user", currentUser);
+
+    } catch (RuntimeException e) {
+        logger.error("Errore durante l'aggiornamento: {}", e.getMessage());
+        model.addAttribute("error", "Errore: Utente non trovato. Riprova o contatta l'assistenza.");
+        model.addAttribute("errorUsername", "Errore: Utente non trovato. Riprova o contatta l'assistenza.");
     }
-
-    // Aggiungi l'utente aggiornato al modello
-    model.addAttribute("user", currentUser);
 
     return "profile";
 }
 
-// -------------------- PASSWORD -----------------  testare
+// -------------------- PASSWORD -----------------  fatto
 @PostMapping("/change-password")
 public String changePassword(@RequestParam String currentPassword,
                              @RequestParam String newPassword,
@@ -80,23 +125,49 @@ public String changePassword(@RequestParam String currentPassword,
                              Principal principal,
                              RedirectAttributes redirectAttributes,
                              Model model) {
+    try{
+        // recupero l'utente orrente
     User currentUser = userService.findByUsername(principal.getName());
 
+    // verifico se la password attuale è corretta
     if (!passwordEncoder.matches(currentPassword, currentUser.getPassword())) {
         // La password attuale non è corretta
+        redirectAttributes.addFlashAttribute("error", "Password attuale errata");
         redirectAttributes.addFlashAttribute("errorPassword", "Password attuale errata");
+
+        // verifico se le due nuove password coincidono
     } else if (!newPassword.equals(confirmPassword)) {
         // Le nuove password non coincidono
+        redirectAttributes.addFlashAttribute("error", "Le nuove password non coincidono");
         redirectAttributes.addFlashAttribute("errorPassword", "Le nuove password non coincidono");
+
+    //se va tutto bene fin qui
     } else {
-        // Aggiorna la password dell'utente
-        currentUser.setPassword(passwordEncoder.encode(newPassword));
+        // cripto e aggiorno la nuova password
+        String encodedNewPassword = passwordEncoder.encode(newPassword);
+        currentUser.setPassword(encodedNewPassword);
         userService.updateUser(currentUser);
+
+         // Aggiorno il contesto di autenticazione con la nuova password
+         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+         UserDetails userDetails = new org.springframework.security.core.userdetails.User(
+             currentUser.getUsername(), encodedNewPassword, auth.getAuthorities());
+         Authentication newAuth = new UsernamePasswordAuthenticationToken(userDetails, newPassword, auth.getAuthorities());
+         SecurityContextHolder.getContext().setAuthentication(newAuth);
+
+         // messaggio di successo
+         redirectAttributes.addFlashAttribute("success", "Password aggiornata con successo");
         redirectAttributes.addFlashAttribute("successPassword", "Password aggiornata con successo");
     }
 
-    // Reindirizza alla pagina del profilo per evitare di inviare nuovamente il modulo
+    // Reindirizza alla pagina del profilo
     return "redirect:/profile";
+
+} catch (RuntimeException e) {
+    redirectAttributes.addFlashAttribute("error", "Errore: Utente non trovato. Riprova o contatta l'assistenza.");
+    redirectAttributes.addFlashAttribute("errorPassword", "Errore: Utente non trovato. Riprova o contatta l'assistenza.");
+    return "redirect:/profile";
+}
 }
 
 
@@ -111,12 +182,14 @@ public String changeEmail(@RequestParam String currentMail,  // mail attuale per
 
     if (!currentUser.getEmail().equals(currentMail)) {
         // non aggiorno e aggiungo un messaggio d'errore
+        model.addAttribute("error", "L'email attuale non corrisponde.");
         model.addAttribute("errorEmail", "L'email attuale non corrisponde.");
     } else {
 
         // aggiorno e aggiungo un messaggio di successo
         currentUser.setEmail(newMail);
         userService.updateUser(currentUser);
+        model.addAttribute("success", "Email aggiornata.");
         model.addAttribute("successEmail", "Email aggiornata.");
     }
 
@@ -132,64 +205,56 @@ public String changeEmail(@RequestParam String currentMail,  // mail attuale per
 
 // -------------------- TELEFONO -----------------   da finire
 
-// @PostMapping("/update-phone")
-// public String updatePhone(@ModelAttribute("user") User user, Model model) {
-//     User currentUser = userService.getCurrentUser();
-
-//     // Aggiorna solo il campo telefono
-//     currentUser.setPhone(user.getPhone());
-//     userService.updateUser(currentUser);
-
-//     // Aggiungi un messaggio di successo appropriato
-//     model.addAttribute("successPhone", "Numero di telefono aggiornato con successo.");
-//     model.addAttribute("user", currentUser);
-
-//     return "profile";
-// }
 
 
 @PostMapping("/update-phone")
 public String updatePhone(@ModelAttribute("user") User user, Model model) {
-    User currentUser = userService.getCurrentUser();
+    try {
+        // Recupera l'utente corrente autenticato
+        User currentUser = userService.getCurrentUser();
 
-    // Verifica che il numero di telefono non sia vuoto
-    if (user.getPhone() == null || user.getPhone().trim().isEmpty()) {
-        model.addAttribute("errorPhone", "Il numero di telefono non può essere vuoto.");
-    }
-    // Verifica che il numero di telefono abbia un formato valido
-    else if (!isValidPhoneNumber(user.getPhone())) {
-        model.addAttribute("errorPhone", "Il numero di telefono non è valido.");
-    }
-    // Verifica che il numero di telefono non sia già in uso da un altro utente
-    else if (userService.isPhoneNumberInUse(user.getPhone(), currentUser.getId())) {
-        model.addAttribute("errorPhone", "Il numero di telefono è già in uso.");
-    }
-    else {
-        // Aggiorna il numero di telefono dell'utente corrente
-        currentUser.setPhone(user.getPhone());
-        userService.updateUser(currentUser);
+        // Verifica che il numero di telefono non sia vuoto
+        if (user.getPhone() == null || user.getPhone().trim().isEmpty()) {
+            model.addAttribute("error", "Il numero di telefono non può essere vuoto.");
+            model.addAttribute("errorPhone", "Il numero di telefono non può essere vuoto.");
+        }
+        // Verifica che il numero di telefono abbia un formato valido (chiamata al metodo del service)
+        else if (!userService.isValidPhoneNumber(user.getPhone())) {
+            model.addAttribute("error", "Il numero di telefono non è valido.");
+            model.addAttribute("errorPhone", "Il numero di telefono non è valido.");
+        }
+        // Verifica che il numero di telefono non sia già in uso da un altro utente
+        else if (userService.isPhoneNumberInUse(user.getPhone(), currentUser.getId())) {
+            model.addAttribute("error", "Il numero di telefono è già in uso.");
+            model.addAttribute("errorPhone", "Il numero di telefono è già in uso.");
+        }
+        else {
+            // Aggiorna il numero di telefono dell'utente corrente
+            currentUser.setPhone(user.getPhone());
+            userService.updateUser(currentUser);
 
-        // Aggiungi un messaggio di successo
-        model.addAttribute("successPhone", "Numero di telefono aggiornato con successo.");
+            // Aggiungi un messaggio di successo
+            model.addAttribute("success", "Numero di telefono aggiornato con successo.");
+            model.addAttribute("successPhone", "Numero di telefono aggiornato con successo.");
+        }
+
+        // Aggiungi l'utente aggiornato al modello
+        model.addAttribute("user", currentUser);
+
+        // Ritorna alla pagina del profilo senza reindirizzamento
+        return "profile";
+
+    } catch (RuntimeException e) {
+        model.addAttribute("error", "Errore: Impossibile aggiornare il numero di telefono. Riprova o contatta l'assistenza.");
+        model.addAttribute("errorPhone", "Errore: Impossibile aggiornare il numero di telefono. Riprova o contatta l'assistenza.");
+        model.addAttribute("user", userService.getCurrentUser()); // Assicurati che "user" sia comunque presente nel modello
+        return "profile";
     }
-
-    // Aggiungi l'utente aggiornato al modello
-    model.addAttribute("user", currentUser);
-
-    return "profile";
 }
 
-// Metodo di utilità per validare il formato del numero di telefono
-private boolean isValidPhoneNumber(String phoneNumber) {
-    // Esempio di espressione regolare per un numero di telefono valido
-    // Questo può variare a seconda del formato desiderato
-    String phoneRegex = "^[+]?[0-9]{10,15}$";
-    return phoneNumber.matches(phoneRegex);
-}
 
 
 
-// -------------------- INDIRIZZO -----------------
 
 
 
