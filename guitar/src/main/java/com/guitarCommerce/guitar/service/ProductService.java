@@ -127,6 +127,8 @@ public class ProductService {
         Product product = getProductById(productId);
         String folderPath = UPLOAD_DIR + productId + "/";
         Path folder = Paths.get(folderPath);
+        System.out.println(product);
+
 
         try {
             if (!Files.exists(folder) || !Files.isDirectory(folder)) {
@@ -159,6 +161,7 @@ public class ProductService {
             else if (fileList.size() > 1) {
                 boolean hasMain = false;
                 File mainFile = null;
+                System.out.println(mainFile);
 
                 // Cerca main.jpg
                 for (File file : fileList) {

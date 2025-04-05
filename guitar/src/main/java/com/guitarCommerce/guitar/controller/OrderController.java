@@ -10,9 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.guitarCommerce.guitar.entity.Order;
-import com.guitarCommerce.guitar.entity.Order.Status;
 import com.guitarCommerce.guitar.service.OrderService;
-import com.guitarCommerce.guitar.service.UserService;
 
 import java.util.List;
 
@@ -23,8 +21,7 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
-    @Autowired 
-    private UserService userService;
+   
 
     @GetMapping
     public String getAllOrders(Model model) {

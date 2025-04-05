@@ -2,7 +2,6 @@ package com.guitarCommerce.guitar.controller;
 
 import com.guitarCommerce.guitar.entity.Product;
 import com.guitarCommerce.guitar.service.ProductService;
-import com.guitarCommerce.guitar.service.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
