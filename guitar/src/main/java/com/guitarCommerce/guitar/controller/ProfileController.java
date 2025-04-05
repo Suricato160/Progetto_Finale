@@ -18,6 +18,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 
@@ -27,13 +28,17 @@ import org.slf4j.LoggerFactory;
 @Controller
 @RequestMapping("/profile")
 public class ProfileController {
-    private final UserService userService;
-    private final PasswordEncoder passwordEncoder;
 
-    public ProfileController(UserService userService, PasswordEncoder passwordEncoder) {
-        this.userService = userService;
-        this.passwordEncoder = passwordEncoder;
-    }
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    // public ProfileController(UserService userService, PasswordEncoder passwordEncoder) {
+    //     this.userService = userService;
+    //     this.passwordEncoder = passwordEncoder;
+    // }
 
 // =====================================================================
 //              Dati del Profilo Utente
@@ -203,7 +208,7 @@ public String changeEmail(@RequestParam String currentMail,  // mail attuale per
     
 
 
-// -------------------- TELEFONO -----------------   da finire
+// -------------------- TELEFONO -----------------   fatto
 
 
 
@@ -259,7 +264,7 @@ public String updatePhone(@ModelAttribute("user") User user, Model model) {
 
 
 
-// -------------------- INDIRIZZO -----------------
+// -------------------- INDIRIZZO -----------------  da finire
 
 
     @PostMapping("/update-address")

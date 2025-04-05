@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Guitar Commerce - Modifica Prodotto</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #ffffff; font-family: Arial, sans-serif; }
+        .thumbnail { width: 100px; height: 100px; object-fit: cover; margin-right: 10px; }
+        .remove-btn { background-color: #dc3545; color: #fff; }
+    </style>
+</head>
+<body>
+     <!-- Navbar -->
+     <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="/">Guitar Commerce</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/products}">Prodotti</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{admin/users}">Utenti</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/orders}">Ordini</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/contact}">Contatti</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/profile}">Profilo</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenuto principale -->
+    <section class="container my-5">
+        <h1>Modifica Prodotto</h1>
+
+        <!-- Messaggi di errore o successo -->
+        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+
+        <!-- Form per modificare il prodotto -->
+        <form th:action="@{/admin/products/update}" method="post" enctype="multipart/form-data" th:object="${product}">
+            <input type="hidden" name="id" th:value="${product.id}">
+
+            <div class="mb-3">
+                <label for="name" class="form-label">Nome</label>
+                <input type="text" class="form-control" id="name" name="name" th:field="*{name}" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="description" class="form-label">Descrizione</label>
+                <textarea class="form-control" id="description" name="description" th:field="*{description}" rows="4"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="shortDescription" class="form-label">Descrizione Breve</label>
+                <textarea class="form-control" id="shortDescription" name="shortDescription" th:field="*{shortDescription}" rows="2"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="price" class="form-label">Prezzo (€)</label>
+                <input type="number" step="0.01" class="form-control" id="price" name="price" th:field="*{price}" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="stock" class="form-label">Quantità in Stock</label>
+                <input type="number" class="form-control" id="stock" name="stock" th:field="*{stock}" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="brand" class="form-label">Brand</label>
+                <input type="text" class="form-control" id="brand" name="brand" th:field="*{brand}">
+            </div>
+
+            <!-- Immagine principale -->
+            <div class="mb-3">
+                <label class="form-label">Immagine Principale (main.jpg)</label>
+                <div th:if="${product.imageUrl != null}">
+                    <img th:src="${product.imageUrl + '/main.jpg'}" class="thumbnail" alt="Immagine principale">
+                </div>
+                <input type="file" class="form-control" name="mainImage" accept="image/*">
+            </div>
+
+            <!-- Immagini aggiuntive -->
+            <div class="mb-3">
+                <label class="form-label">Immagini Aggiuntive</label>
+                <div class="d-flex flex-wrap">
+                    <div th:each="img, iterStat : ${product.additionalImages}" class="mb-2">
+                        <img th:src="${img}" class="thumbnail" alt="Immagine aggiuntiva">
+                        <button type="button" class="btn remove-btn btn-sm" th:onclick="'removeImage(' + ${iterStat.index} + ')'">Rimuovi</button>
+                        <input type="hidden" name="existingImages" th:value="${img}">
+                    </div>
+                </div>
+                <input type="file" class="form-control" name="newAdditionalImages" accept="image/*" multiple>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Salva Modifiche</button>
+            <a th:href="@{/products}" class="btn btn-secondary">Annulla</a>
+        </form>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-light text-center py-3">
+        <p>© 2025 Guitar Commerce. Tutti i diritti riservati.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function removeImage(index) {
+            let imageDiv = document.getElementsByClassName('thumbnail')[index].parentElement;
+            imageDiv.remove();
+        }
+    </script>
+</body>
+</html>

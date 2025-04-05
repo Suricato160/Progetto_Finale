@@ -23,7 +23,7 @@
                         <a class="nav-link" th:href="@{/products}">Prodotti</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" th:href="@{/users}">Utenti</a>
+                        <a class="nav-link" th:href="@{admin/users}">Utenti</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" th:href="@{/orders}">Ordini</a>
@@ -45,11 +45,12 @@
         <div class="row">
             <div class="col-md-4" th:each="product : ${products}">
                 <div class="product-card">
-                    <img th:src="${product.imageUrl}" alt="Immagine prodotto" th:unless="${product.imageUrl == null}" />
-                    <h3 th:text="${product.name}">Nome Prodotto</h3>
+                    <img th:src="${product.imageUrl + '/main.jpg'}" alt="Immagine prodotto" th:unless="${product.imageUrl == null}" />                    <h3 th:text="${product.name}">Nome Prodotto</h3>
                     <p th:text="${product.description}">Descrizione breve</p>
                     <p><strong>Prezzo:</strong> <span th:text="${product.price}">0.00</span> €</p>
                     <a th:href="@{/products/{id}(id=${product.id})}" class="btn btn-primary">Dettagli</a>
+                    <a th:href="@{/admin/products/edit/{id}(id=${product.id})}" class="btn btn-primary">Modifica</a>
+
                 </div>
             </div>
         </div>

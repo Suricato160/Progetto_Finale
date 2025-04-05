@@ -51,6 +51,9 @@ public class ProductService {
         return products;
     }
 
+
+// ---------------------------------------------------------------
+
     // Metodo per caricare le immagini dalla cartella
     private void loadProductImages(Product product) {
         List<String> imageFiles = new ArrayList<>();
@@ -77,6 +80,36 @@ public class ProductService {
             System.err.println("Errore nel caricamento delle immagini per " + product.getImageUrl() + ": " + e.getMessage());
         }
         product.setAdditionalImages(imageFiles);
+    }
+
+    // Metodo aggiornato per AdminProductController
+    public List<String> loadAdditionalImages(int productId) {
+        Product product = getProductById(productId);
+        if (product == null || product.getImageUrl() == null) {
+            return new ArrayList<>();
+        }
+
+        List<String> images = new ArrayList<>();
+        try {
+            String folderPath = "classpath:static" + product.getImageUrl();
+            File folder = ResourceUtils.getFile(folderPath);
+
+            if (folder.exists() && folder.isDirectory()) {
+                File[] files = folder.listFiles((dir, name) -> {
+                    String lowerName = name.toLowerCase();
+                    return lowerName.endsWith(".jpg") || lowerName.endsWith(".png") || lowerName.endsWith(".jpeg");
+                });
+                if (files != null) {
+                    Arrays.sort(files);
+                    for (File file : files) {
+                        images.add(product.getImageUrl() + "/" + file.getName());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Errore nel caricamento delle immagini aggiuntive per " + product.getImageUrl() + ": " + e.getMessage());
+        }
+        return images;
     }
 
     // Crea un nuovo prodotto
@@ -109,4 +142,24 @@ public class ProductService {
         Product product = getProductById(id);
         productRepository.delete(product);
     }
+
+
+
+
+
+// ====================================================
+
+
+
+
+    public Product getProductById(int id) {
+        return productRepository.findById(id).orElse(null);
+    }
+
+    @Transactional
+    public Product updateProduct(Product product) {
+        return productRepository.save(product);
+    }
+
+    
 }
