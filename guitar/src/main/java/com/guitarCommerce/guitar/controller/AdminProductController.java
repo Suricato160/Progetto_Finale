@@ -105,7 +105,7 @@ public class AdminProductController {
         logger.info("Richiesta POST ricevuta per /admin/products/update-images/{}", id);
         logger.info("Main image ricevuta: {}, vuota: {}", mainImage != null ? mainImage.getOriginalFilename() : "null", mainImage == null || mainImage.isEmpty());
         logger.info("Immagini aggiuntive ricevute: {}", newAdditionalImages != null ? newAdditionalImages.length : 0);
-
+    
         try {
             Product product = productService.getProductById(id);
             if (product == null) {
@@ -113,7 +113,7 @@ public class AdminProductController {
                 model.addAttribute("errorMessage", "Prodotto non trovato.");
                 return "redirect:/products";
             }
-
+    
             // Gestione immagini
             String productDir = ResourceUtils.getFile("classpath:" + UPLOAD_DIR + id + "/").getAbsolutePath();
             Path productPath = Paths.get(productDir);
@@ -121,14 +121,34 @@ public class AdminProductController {
                 Files.createDirectories(productPath);
                 logger.info("Cartella creata: {}", productDir);
             }
-
+    
+            // Carica main.jpg se presente
             if (mainImage != null && !mainImage.isEmpty()) {
                 mainImage.transferTo(productPath.resolve("main.jpg"));
                 logger.info("Main image salvata: {}", productPath.resolve("main.jpg"));
             }
-
+    
+            // Carica nuove immagini aggiuntive
             List<String> updatedImages = new ArrayList<>(product.getAdditionalImages() != null ? product.getAdditionalImages() : new ArrayList<>());
-            int thumbIndex = updatedImages.size() - (updatedImages.isEmpty() ? 0 : 1); // Sottrai 1 per main.jpg
+            // Calcola il prossimo indice per le immagini aggiuntive
+            int thumbIndex = 1; // Inizia da 1 (thumb1.jpg)
+            if (!updatedImages.isEmpty()) {
+                // Trova l'indice più alto tra le immagini esistenti (escludendo main.jpg)
+                for (String imageUrl : updatedImages) {
+                    String fileName = Paths.get(imageUrl).getFileName().toString();
+                    if (fileName.startsWith("thumb")) {
+                        String indexStr = fileName.replace("thumb", "").replace(".jpg", "");
+                        try {
+                            int currentIndex = Integer.parseInt(indexStr);
+                            thumbIndex = Math.max(thumbIndex, currentIndex + 1);
+                        } catch (NumberFormatException e) {
+                            logger.warn("Nome file non valido: {}", fileName);
+                        }
+                    }
+                }
+            }
+    
+            // Aggiungi nuove immagini con il prossimo indice disponibile
             if (newAdditionalImages != null) {
                 for (MultipartFile file : newAdditionalImages) {
                     if (file != null && !file.isEmpty()) {
@@ -138,7 +158,8 @@ public class AdminProductController {
                     }
                 }
             }
-
+    
+            // Aggiorna la lista delle immagini
             productService.renameImagesInFolder(id);
             product.setAdditionalImages(productService.loadAdditionalImages(id));
             logger.info("Immagini aggiornate con successo per il prodotto {}: {}", id, product.getAdditionalImages());
@@ -157,7 +178,7 @@ public class AdminProductController {
         }
         return "products/productEdit";
     }
-
+    
     @PostMapping("/{id}/delete-image")
     public String deleteProductImage(@PathVariable("id") int id, @RequestParam("imageUrl") String imageUrl, Model model) {
         try {
@@ -166,14 +187,14 @@ public class AdminProductController {
                 model.addAttribute("errorMessage", "Prodotto non trovato.");
                 return "redirect:/admin/products/edit/" + id;
             }
-
+    
             logger.info("Tentativo di eliminare immagine con URL: {}", imageUrl);
-
+    
             String fileName = Paths.get(imageUrl).getFileName().toString();
             String filePath = ResourceUtils.getFile("classpath:" + UPLOAD_DIR + id + "/").getAbsolutePath() + "/" + fileName;
             Path path = Paths.get(filePath);
             logger.info("Percorso file da eliminare: {}", path.toAbsolutePath());
-
+    
             if (Files.exists(path)) {
                 Files.delete(path);
                 logger.info("Immagine eliminata dal filesystem: {}", filePath);
@@ -184,7 +205,7 @@ public class AdminProductController {
                 productService.renameImagesInFolder(id);
                 model.addAttribute("successMessage", "Il file non era presente, ma la lista è stata sincronizzata.");
             }
-
+    
             product.setAdditionalImages(productService.loadAdditionalImages(id));
             model.addAttribute("product", product);
             return "products/productEdit";

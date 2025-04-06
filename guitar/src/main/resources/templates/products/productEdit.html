@@ -94,36 +94,44 @@
         <!-- Form 2: Gestione immagini -->
         <div class="form-section">
             <h3>Gestione Immagini</h3>
-            <form th:action="@{/admin/products/update-images/{id}(id=${product.id})}" method="post" enctype="multipart/form-data">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
-                <!-- Immagine principale -->
-                <div class="mb-3">
-                    <label class="form-label">Immagine Principale (main.jpg)</label>
-                    <div th:if="${product.additionalImages != null and not #lists.isEmpty(product.additionalImages)}">
-                        <img th:src="${product.additionalImages[0]}" class="thumbnail" alt="Immagine principale">
+            <!-- Sottosezione 1: Caricamento immagini -->
+            <div class="mb-4">
+                <h4>Carica Nuove Immagini</h4>
+                <form id="imagesForm" th:action="@{/admin/products/update-images/{id}(id=${product.id})}" method="post" enctype="multipart/form-data">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                    <div class="mb-3">
+                        <label class="form-label">Immagine Principale (main.jpg)</label>
+                        <input type="file" class="form-control" name="mainImage" accept="image/*">
                     </div>
-                    <input type="file" class="form-control" name="mainImage" accept="image/*">
-                </div>
 
-                <!-- Immagini aggiuntive -->
-                <div class="mb-3">
-                    <label class="form-label">Immagini Aggiuntive</label>
-                    <div class="d-flex flex-wrap">
-                        <div th:each="img : ${product.additionalImages}" th:if="${img != product.additionalImages[0]}" class="mb-2">
-                            <img th:src="${img}" class="thumbnail" alt="Immagine aggiuntiva">
-                            <form th:action="@{/admin/products/{id}/delete-image(id=${product.id})}" method="post" style="display:inline;">
-                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                                <input type="hidden" name="imageUrl" th:value="${img}">
-                                <button type="submit" class="btn remove-btn btn-sm" onclick="return confirm('Sei sicuro di voler eliminare questa foto?')">Rimuovi</button>
-                            </form>
-                        </div>
+                    <div class="mb-3">
+                        <label class="form-label">Immagini Aggiuntive</label>
+                        <input type="file" class="form-control" name="newAdditionalImages" accept="image/*" multiple>
                     </div>
-                    <input type="file" class="form-control" name="newAdditionalImages" accept="image/*" multiple>
-                </div>
 
-                <button type="submit" class="btn btn-primary">Aggiorna Immagini</button>
-            </form>
+                    <button type="submit" class="btn btn-primary">Carica Immagini</button>
+                </form>
+            </div>
+
+            <!-- Sottosezione 2: Elenco immagini esistenti -->
+            <div>
+                <h4>Immagini Esistenti</h4>
+                <div class="d-flex flex-wrap">
+                    <div th:each="img, iterStat : ${product.additionalImages}" class="mb-2">
+                        <img th:src="${img}" class="thumbnail" th:alt="'Immagine ' + ${iterStat.index}">
+                        <form th:action="@{/admin/products/{id}/delete-image(id=${product.id})}" method="post" style="display:inline;">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <input type="hidden" name="imageUrl" th:value="${img}">
+                            <button type="submit" class="btn remove-btn btn-sm" onclick="return confirm('Sei sicuro di voler eliminare questa foto?')">Rimuovi</button>
+                        </form>
+                    </div>
+                    <div th:if="${product.additionalImages == null or #lists.isEmpty(product.additionalImages)}">
+                        <p>Nessuna immagine presente.</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
