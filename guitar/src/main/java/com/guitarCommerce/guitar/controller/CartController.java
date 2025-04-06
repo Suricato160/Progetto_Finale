@@ -1,7 +1,6 @@
 package com.guitarCommerce.guitar.controller;
 
 import com.guitarCommerce.guitar.entity.Cart;
-import com.guitarCommerce.guitar.entity.Order;
 import com.guitarCommerce.guitar.service.CartService;
 import com.guitarCommerce.guitar.service.OrderService;
 import com.guitarCommerce.guitar.service.UserService;

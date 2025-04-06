@@ -8,21 +8,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ResourceUtils;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-
-
-import java.util.Comparator;
-
 
 @Service
 public class ProductService {
@@ -36,7 +31,6 @@ public class ProductService {
     private static final String UPLOAD_DIR = "static/products/"; // Relativo al classpath
 
     private static final Logger logger = LoggerFactory.getLogger(ProductService.class);
-
 
     public List<Product> getAllProducts() {
         List<Product> products = productRepository.findAll();
@@ -53,7 +47,7 @@ public class ProductService {
 
     public List<Product> getProductsByCategory(Integer categoryId) {
         List<Product> products = productRepository.findByCategoryId(categoryId);
-        products.forEach(this::loadProductImages);
+        products.forEach(this::loadProductImages); // Aggiungi questa riga per caricare le immagini
         return products;
     }
 
@@ -64,7 +58,12 @@ public class ProductService {
     }
 
     private void loadProductImages(Product product) {
+        if (product == null) {
+            logger.warn("Prodotto nullo trovato durante il caricamento delle immagini");
+            return;
+        }
         product.setAdditionalImages(loadAdditionalImages(product.getId()));
+        logger.info("Prodotto: {}, Immagini: {}", product.getName() != null ? product.getName() : "Nome non disponibile", product.getAdditionalImages());
     }
 
     public List<String> loadAdditionalImages(int productId) {
@@ -169,18 +168,13 @@ public class ProductService {
         return savedProduct;
     }
 
-
-     // Crea un nuovo prodotto
-     @Transactional
-     public Product createProduct(Product product) {
-         logger.info("Creazione del nuovo prodotto: {}", product);
-         Product savedProduct = productRepository.save(product);
-         logger.info("Prodotto creato con ID: {}", savedProduct.getId());
-         return savedProduct;
-     }
-
-
-     public List<Product> getProductsByCategory(int categoryId) {
-        return productRepository.findByCategoryId(categoryId);
+    @Transactional
+    public Product createProduct(Product product) {
+        logger.info("Creazione del nuovo prodotto: {}", product);
+        Product savedProduct = productRepository.save(product);
+        logger.info("Prodotto creato con ID: {}", savedProduct.getId());
+        return savedProduct;
     }
+
+  
 }

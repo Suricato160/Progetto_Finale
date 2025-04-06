@@ -15,7 +15,6 @@
     <!-- Navbar -->
     <div th:replace="~{fragments :: navbar}"></div>
 
-
     <!-- Contenuto principale -->
     <section class="container my-5">
         <h1>Modifica Prodotto</h1>
@@ -61,19 +60,26 @@
                     <input type="text" class="form-control" id="brand" th:field="*{brand}">
                 </div>
 
-                <!--  categoria ============================================== -->
+                <!-- Categoria -->
+<div class="mb-3">
+    <label for="categoryId" class="form-label">Categoria</label>
+    <div class="input-group">
+        <select class="form-control" id="categoryId" name="categoryId" required>
+            <option value="">Seleziona una categoria</option>
+            <option th:each="category : ${categories}"
+                    th:value="${category.id}"
+                    th:text="${category.name}"
+                    th:selected="${newCategoryId != null ? newCategoryId == category.id : product.category != null and product.category.id == category.id}">
+            </option>
+        </select>
+        <!-- Pulsante per aprire il modal -->
+        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+            Aggiungi Nuova Categoria
+        </button>
+    </div>
+</div>
 
-                <div class="mb-3">
-                    <label for="categoryId" class="form-label">Categoria</label>
-                    <select class="form-control" id="categoryId" name="categoryId" required>
-                        <option value="">Seleziona una categoria</option>
-                        <option th:each="category : ${categories}"
-                                th:value="${category.id}"
-                                th:text="${category.name}"
-                                th:selected="${product.category != null and product.category.id == category.id}">
-                        </option>
-                    </select>
-                </div>
+                <!-- Modal per aggiungere una nuova categoria -->
                 <!-- Modal per aggiungere una nuova categoria -->
 <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -85,6 +91,7 @@
             <div class="modal-body">
                 <form th:action="@{/admin/categories/add}" method="post">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <input type="hidden" name="redirectTo" th:value="@{/admin/products/edit/{id}(id=${product.id})}" />
                     <div class="mb-3">
                         <label for="newCategoryName" class="form-label">Nome Categoria</label>
                         <input type="text" class="form-control" id="newCategoryName" name="name" required>

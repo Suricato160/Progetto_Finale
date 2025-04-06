@@ -27,51 +27,76 @@
 
         <div class="card" th:if="${order != null}">
             <div class="card-body">
-                <h5 class="card-title">Ordine #<span th:text="${order.id}"></span></h5>
-                <p><strong>Data:</strong> <span th:text="${order.orderDate}"></span></p>
-                <p sec:authorize="hasRole('ADMIN')"><strong>Utente:</strong> <span th:text="${order.user.username}"></span></p>
-                <p><strong>Totale:</strong> <span th:text="${order.totalAmount} + ' €'"></span></p>
-                <p><strong>Stato:</strong> <span th:text="${order.status}" th:classappend="${order.status == 'PENDING' ? 'status-pending' : order.status == 'SHIPPED' ? 'status-shipped' : order.status == 'DELIVERED' ? 'status-delivered' : order.status == 'CANCELLED' ? 'status-cancelled' : 'status-failed'}"></span></p>
+                <!-- Dettagli dell'ordine e dati di spedizione in due colonne -->
+                <div class="row">
+                    <!-- Colonna sinistra: Dettagli dell'ordine -->
+                    <div class="col-md-6">
+                        <h5 class="card-title">Ordine #<span th:text="${order.id}"></span></h5>
+                        <p><strong>Data:</strong> <span th:text="${order.orderDate}"></span></p>
+                        <p sec:authorize="hasRole('ADMIN')"><strong>Utente:</strong> <span th:text="${order.user.username}"></span></p>
+                        <p><strong>Totale:</strong> <span th:text="${order.totalAmount} + ' €'"></span></p>
+                        <p><strong>Stato:</strong> <span th:text="${order.status}" th:classappend="${order.status == 'PENDING' ? 'status-pending' : order.status == 'SHIPPED' ? 'status-shipped' : order.status == 'DELIVERED' ? 'status-delivered' : order.status == 'CANCELLED' ? 'status-cancelled' : 'status-failed'}"></span></p>
 
-                <h6>Prodotti nell'ordine:</h6>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Nome</th>
-                            <th>Descrizione</th>
-                            <th>Prezzo</th>
-                            <th>Quantità</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="orderDetail : ${order.orderDetails}" th:if="${orderDetail.product != null}" th:object="${orderDetail.product}">
-                            <td th:text="*{name}"></td>
-                            <td th:text="*{description}"></td>
-                            <td th:text="*{price} + ' €'"></td>
-                            <td th:text="${orderDetail.quantity}"></td>
-                        </tr>
-                        <tr th:if="${#lists.isEmpty(order.orderDetails)}">
-                            <td colspan="4">Nessun prodotto nell'ordine.</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <!-- Form per cambiare lo stato (solo per ADMIN) -->
-                <div sec:authorize="hasRole('ADMIN')">
-                    <h6>Cambia Stato Ordine</h6>
-                    <form th:action="@{/orders/{id}/update-status(id=${order.id})}" method="post">
-                        <div class="mb-3">
-                            <label for="status" class="form-label">Stato</label>
-                            <select class="form-control" id="status" name="status" required>
-                                <option value="PENDING" th:selected="${order.status == 'PENDING'}">In Attesa</option>
-                                <option value="SHIPPED" th:selected="${order.status == 'SHIPPED'}">Spedito</option>
-                                <option value="DELIVERED" th:selected="${order.status == 'DELIVERED'}">Consegnato</option>
-                                <option value="CANCELLED" th:selected="${order.status == 'CANCELLED'}">Annullato</option>
-                                <option value="FAILED" th:selected="${order.status == 'FAILED'}">Fallito</option>
-                            </select>
+                        <!-- Form per cambiare lo stato (solo per ADMIN) -->
+                        <div sec:authorize="hasRole('ADMIN')">
+                            <h6>Cambia Stato Ordine</h6>
+                            <form th:action="@{/orders/{id}/update-status(id=${order.id})}" method="post">
+                                <div class="mb-3">
+                                    <label for="status" class="form-label">Stato</label>
+                                    <select class="form-control" id="status" name="status" required>
+                                        <option value="PENDING" th:selected="${order.status == 'PENDING'}">In Attesa</option>
+                                        <option value="SHIPPED" th:selected="${order.status == 'SHIPPED'}">Spedito</option>
+                                        <option value="DELIVERED" th:selected="${order.status == 'DELIVERED'}">Consegnato</option>
+                                        <option value="CANCELLED" th:selected="${order.status == 'CANCELLED'}">Annullato</option>
+                                        <option value="FAILED" th:selected="${order.status == 'FAILED'}">Fallito</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Aggiorna Stato</button>
+                            </form>
                         </div>
-                        <button type="submit" class="btn btn-primary">Aggiorna Stato</button>
-                    </form>
+                    </div>
+
+                    <!-- Colonna destra: Dati di spedizione -->
+                    <div class="col-md-6">
+                        <h5 class="card-title">Dati di Spedizione</h5>
+                        <div th:if="${order.user != null}">
+                            <p><strong>Nome Cognome:</strong> <span th:text="${order.user.firstName != null and order.user.lastName != null ? order.user.firstName + ' ' + order.user.lastName : 'Non impostato'}">Nome Cognome</span></p>
+                            <p><strong>Numero di Telefono:</strong> <span th:text="${order.user.phone != null ? order.user.phone : 'Non impostato'}">Non impostato</span></p>
+                            <p><strong>Indirizzo:</strong> <span th:text="${order.user.street != null ? order.user.street : 'Non impostato'}">Non impostato</span></p>
+                            <p><strong>Città:</strong> <span th:text="${order.user.city != null ? order.user.city : 'Non impostato'}">Non impostato</span></p>
+                            <p><strong>Codice Postale:</strong> <span th:text="${order.user.postalCode != null ? order.user.postalCode : 'Non impostato'}">Non impostato</span></p>
+                            <p><strong>Nazione:</strong> <span th:text="${order.user.country != null ? order.user.country : 'Non impostato'}">Non impostato</span></p>
+                        </div>
+                        <div th:unless="${order.user != null}" class="alert alert-warning">
+                            Dati utente non disponibili.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sezione Prodotti nell'ordine (a tutta larghezza, più in basso) -->
+                <div class="mt-4">
+                    <h6>Prodotti nell'ordine:</h6>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Descrizione</th>
+                                <th>Prezzo</th>
+                                <th>Quantità</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="orderDetail : ${order.orderDetails}" th:if="${orderDetail.product != null}" th:object="${orderDetail.product}">
+                                <td th:text="*{name}"></td>
+                                <td th:text="*{description}"></td>
+                                <td th:text="*{price} + ' €'"></td>
+                                <td th:text="${orderDetail.quantity}"></td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(order.orderDetails)}">
+                                <td colspan="4">Nessun prodotto nell'ordine.</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

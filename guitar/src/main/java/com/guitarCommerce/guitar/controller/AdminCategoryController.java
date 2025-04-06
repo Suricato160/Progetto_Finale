@@ -25,16 +25,19 @@ public class AdminCategoryController {
     }
 
     @PostMapping("/add")
-    public String addCategory(@RequestParam("name") String name, Model model) {
+    public String addCategory(
+            @RequestParam("name") String name,
+            @RequestParam(value = "redirectTo", defaultValue = "/products") String redirectTo,
+            Model model) {
         try {
             Category category = new Category();
             category.setName(name);
-            categoryService.createCategory(category);
-            model.addAttribute("successMessage", "Categoria aggiunta con successo.");
+            Category savedCategory = categoryService.createCategory(category);
+            // Aggiungi un messaggio di successo e l'ID della nuova categoria
+            return "redirect:" + redirectTo + "?successMessage=Categoria aggiunta con successo&newCategoryId=" + savedCategory.getId();
         } catch (Exception e) {
-            model.addAttribute("errorMessage", "Errore durante l'aggiunta della categoria: " + e.getMessage());
+            // Aggiungi un messaggio di errore
+            return "redirect:" + redirectTo + "?errorMessage=Errore durante l'aggiunta della categoria: " + e.getMessage();
         }
-        // Reindirizza alla pagina corrente (dovrebbe essere gestito dal client, ma per ora reindirizziamo a /products)
-        return "redirect:/products";
     }
 }

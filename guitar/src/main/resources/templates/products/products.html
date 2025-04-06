@@ -18,7 +18,7 @@
         <h1>Tutti i Prodotti</h1>
         <!-- Bottone per creare un nuovo prodotto -->
         <div class="mb-4">
-            <a th:href="@{/admin/products/create}" class="btn btn-primary">Crea Nuovo Prodotto</a>
+            <a th:href="@{/admin/products/create}" class="btn btn-primary" sec:authorize="hasRole('ADMIN')">Crea Nuovo Prodotto</a>
         </div>
         <!-- Fine -->
         <div class="row">
@@ -34,8 +34,8 @@
                     <p th:text="${product.description}">Descrizione breve</p>
                     <p><strong>Prezzo:</strong> <span th:text="${product.price}">0.00</span> €</p>
                     <a th:href="@{/products/{id}(id=${product.id})}" class="btn btn-primary">Dettagli</a>
-                    <a th:href="@{/admin/products/edit/{id}(id=${product.id})}" class="btn btn-primary">Modifica</a>
-                    <form th:action="@{/admin/products/delete/{id}(id=${product.id})}" method="post" style="display:inline;">
+                    <a th:href="@{/admin/products/edit/{id}(id=${product.id})}" class="btn btn-primary" sec:authorize="hasRole('ADMIN')">Modifica</a>
+                    <form th:action="@{/admin/products/delete/{id}(id=${product.id})}" method="post" style="display:inline;" sec:authorize="hasRole('ADMIN')">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                         <button type="submit" class="btn btn-sm btn-danger mt-2" onclick="return confirm('Sei sicuro di voler eliminare questo prodotto?')">Elimina</button>
                     </form>
