@@ -8,14 +8,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ResourceUtils;
 
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
+
+import java.util.Arrays;
+import java.util.Comparator;
+
 
 @Service
 public class ProductService {
@@ -28,6 +37,9 @@ public class ProductService {
 
     private static final String BASE_PATH = "/products/";
     private static final String UPLOAD_DIR = "static/products/"; // Relativo al classpath
+
+    private static final Logger logger = LoggerFactory.getLogger(ProductService.class);
+
 
     public List<Product> getAllProducts() {
         List<Product> products = productRepository.findAll();
@@ -61,85 +73,64 @@ public class ProductService {
     public List<String> loadAdditionalImages(int productId) {
         List<String> images = new ArrayList<>();
         try {
-            String folderPath = "classpath:" + UPLOAD_DIR + productId + "/";
-            File folder = ResourceUtils.getFile(folderPath);
-
-            System.out.println("Tentativo di caricare immagini dalla cartella: " + folder.getAbsolutePath());
-            if (folder.exists() && folder.isDirectory()) {
-                File[] files = folder.listFiles((dir, name) -> {
-                    String lowerName = name.toLowerCase();
-                    return lowerName.endsWith(".jpg") || lowerName.endsWith(".png") || lowerName.endsWith(".jpeg");
-                });
-                if (files != null && files.length > 0) {
-                    Arrays.sort(files);
+            String classPath = ResourceUtils.getFile("classpath:").getAbsolutePath();
+            String productDirPath = classPath + File.separator + UPLOAD_DIR + productId;
+            File productDir = new File(productDirPath);
+            if (productDir.exists() && productDir.isDirectory()) {
+                File[] files = productDir.listFiles((dir, name) -> name.endsWith(".jpg"));
+                if (files != null) {
                     for (File file : files) {
-                        images.add(BASE_PATH + productId + "/" + file.getName());
-                        System.out.println("Immagine trovata: " + file.getName());
+                        String imagePath = "/products/" + productId + "/" + file.getName();
+                        images.add(imagePath);
                     }
-                } else {
-                    System.out.println("Nessun file immagine trovato in: " + folderPath);
                 }
-            } else {
-                System.out.println("Cartella non trovata o non è una directory: " + folderPath);
+                images.sort((a, b) -> {
+                    if (a.contains("main.jpg")) return -1;
+                    if (b.contains("main.jpg")) return 1;
+                    return a.compareTo(b);
+                });
             }
-        } catch (Exception e) {
-            System.err.println("Errore nel caricamento delle immagini per il prodotto " + productId + ": " + e.getMessage());
+        } catch (IOException e) {
+            logger.error("Errore durante il caricamento delle immagini per il prodotto {}: {}", productId, e.getMessage());
         }
         return images;
     }
 
     public void renameImagesInFolder(int productId) {
         try {
-            String folderPath = ResourceUtils.getFile("classpath:" + UPLOAD_DIR + productId + "/").getAbsolutePath();
-            Path folder = Paths.get(folderPath);
-
-            System.out.println("Tentativo di rinominare immagini nella cartella: " + folderPath);
-            if (!Files.exists(folder) || !Files.isDirectory(folder)) {
-                System.out.println("Cartella non trovata: " + folderPath);
-                return;
-            }
-
-            File[] files = folder.toFile().listFiles((dir, name) -> {
-                String lowerName = name.toLowerCase();
-                return lowerName.endsWith(".jpg") || lowerName.endsWith(".png") || lowerName.endsWith(".jpeg");
-            });
-
-            if (files == null || files.length == 0) {
-                System.out.println("Nessun file trovato nella cartella: " + folderPath);
-                return;
-            }
-
-            Arrays.sort(files);
-            List<File> fileList = new ArrayList<>(Arrays.asList(files));
-
-            if (fileList.size() == 1) {
-                File file = fileList.get(0);
-                Path newPath = folder.resolve("main.jpg");
-                if (!file.getName().equals("main.jpg")) {
-                    Files.move(file.toPath(), newPath);
-                    System.out.println("Rinominato " + file.getName() + " in main.jpg");
+            String classPath = ResourceUtils.getFile("classpath:").getAbsolutePath();
+            String productDirPath = classPath + File.separator + UPLOAD_DIR + productId;
+            File productDir = new File(productDirPath);
+            if (productDir.exists() && productDir.isDirectory()) {
+                List<File> imageFiles = new ArrayList<>();
+                for (File file : productDir.listFiles((dir, name) -> name.endsWith(".jpg") && !name.equals("main.jpg"))) {
+                    imageFiles.add(file);
                 }
-            } else if (fileList.size() > 1) {
-                File firstFile = fileList.get(0);
-                Path mainPath = folder.resolve("main.jpg");
-                if (!firstFile.getName().equals("main.jpg")) {
-                    Files.move(firstFile.toPath(), mainPath);
-                    System.out.println("Rinominato " + firstFile.getName() + " in main.jpg");
-                }
-                fileList.remove(0);
+
+                imageFiles.sort(Comparator.comparing(File::getName));
 
                 int thumbIndex = 1;
-                for (File file : fileList) {
+                for (File file : imageFiles) {
                     String newName = "thumb" + thumbIndex++ + ".jpg";
-                    Path newPath = folder.resolve(newName);
                     if (!file.getName().equals(newName)) {
-                        Files.move(file.toPath(), newPath);
-                        System.out.println("Rinominato " + file.getName() + " in " + newName);
+                        Path oldPath = file.toPath();
+                        Path newPath = productDir.toPath().resolve(newName);
+                        Files.move(oldPath, newPath);
+                        logger.info("Immagine rinominata: {} -> {}", file.getName(), newName);
+                    }
+                }
+
+                File mainImage = new File(productDir, "main.jpg");
+                if (mainImage.exists()) {
+                    List<String> updatedImages = new ArrayList<>();
+                    updatedImages.add("/products/" + productId + "/main.jpg");
+                    for (int i = 1; i < thumbIndex; i++) {
+                        updatedImages.add("/products/" + productId + "/thumb" + i + ".jpg");
                     }
                 }
             }
         } catch (IOException e) {
-            System.err.println("Errore durante la rinominazione dei file per il prodotto " + productId + ": " + e.getMessage());
+            logger.error("Errore durante la rinominazione delle immagini per il prodotto {}: {}", productId, e.getMessage());
         }
     }
 
@@ -180,4 +171,14 @@ public class ProductService {
         renameImagesInFolder(product.getId());
         return savedProduct;
     }
+
+
+     // Crea un nuovo prodotto
+     @Transactional
+     public Product createProduct(Product product) {
+         logger.info("Creazione del nuovo prodotto: {}", product);
+         Product savedProduct = productRepository.save(product);
+         logger.info("Prodotto creato con ID: {}", savedProduct.getId());
+         return savedProduct;
+     }
 }
