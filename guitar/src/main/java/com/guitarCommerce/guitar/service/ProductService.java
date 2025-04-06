@@ -13,7 +13,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 
 
-import java.util.Arrays;
 import java.util.Comparator;
 
 
@@ -35,7 +33,6 @@ public class ProductService {
     @Autowired
     private CategoryService categoryService;
 
-    private static final String BASE_PATH = "/products/";
     private static final String UPLOAD_DIR = "static/products/"; // Relativo al classpath
 
     private static final Logger logger = LoggerFactory.getLogger(ProductService.class);
