@@ -45,12 +45,12 @@
         <div class="row">
             <div class="col-md-4" th:each="product : ${products}">
                 <div class="product-card">
-                    <img th:src="${product.imageUrl + '/main.jpg'}" alt="Immagine prodotto" th:unless="${product.imageUrl == null}" />                    <h3 th:text="${product.name}">Nome Prodotto</h3>
+                    <img th:src="${product.additionalImages != null and not #lists.isEmpty(product.additionalImages) ? product.additionalImages[0] : '/images/default.jpg'}" alt="Immagine prodotto" />
+                    <h3 th:text="${product.name}">Nome Prodotto</h3>
                     <p th:text="${product.description}">Descrizione breve</p>
                     <p><strong>Prezzo:</strong> <span th:text="${product.price}">0.00</span> €</p>
                     <a th:href="@{/products/{id}(id=${product.id})}" class="btn btn-primary">Dettagli</a>
                     <a th:href="@{/admin/products/edit/{id}(id=${product.id})}" class="btn btn-primary">Modifica</a>
-
                 </div>
             </div>
         </div>

@@ -1,6 +1,5 @@
 package com.guitarCommerce.guitar.controller;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.ResourceUtils;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,12 +25,14 @@ import org.springframework.web.multipart.MultipartFile;
 import com.guitarCommerce.guitar.entity.Product;
 import com.guitarCommerce.guitar.service.ProductService;
 
+import jakarta.validation.Valid;
+
 @Controller
 @RequestMapping("/admin/products")
 public class AdminProductController {
 
     private static final Logger logger = LoggerFactory.getLogger(AdminProductController.class);
-    private static final String UPLOAD_DIR = "src/main/resources/static/images/products/";
+    private static final String UPLOAD_DIR = "static/products/";
 
     @Autowired
     private ProductService productService;
@@ -42,105 +44,157 @@ public class AdminProductController {
             model.addAttribute("errorMessage", "Prodotto non trovato.");
             return "redirect:/products";
         }
-        product.setAdditionalImages(productService.loadAdditionalImages(id));
         model.addAttribute("product", product);
         logger.info("Immagini aggiuntive caricate per il prodotto {}: {}", id, product.getAdditionalImages());
         return "products/productEdit";
     }
 
-    @PostMapping("/update")
-    public String updateProduct(
-            @ModelAttribute("product") Product product,
-            @RequestParam("mainImage") MultipartFile mainImage,
-            @RequestParam("newAdditionalImages") MultipartFile[] newAdditionalImages,
-            @RequestParam(value = "existingImages", required = false) List<String> existingImages,
+    @PostMapping("/update-details")
+    public String updateProductDetails(
+            @Valid @ModelAttribute("product") Product product,
+            BindingResult bindingResult,
             Model model) {
+        logger.info("Richiesta POST ricevuta per /admin/products/update-details");
+        logger.info("Dati ricevuti - Prodotto: ID={}, Nome={}, Prezzo={}, Stock={}",
+                product.getId(), product.getName(), product.getPrice(), product.getStock());
+
+        // Controlla errori di validazione
+        if (bindingResult.hasErrors()) {
+            logger.error("Errori di validazione: {}", bindingResult.getAllErrors());
+            model.addAttribute("errorMessage", "Errore nei dati inseriti. Controlla i campi obbligatori.");
+            return "products/productEdit";
+        }
+
         try {
             Product existingProduct = productService.getProductById(product.getId());
             if (existingProduct == null) {
+                logger.error("Prodotto non trovato con ID: {}", product.getId());
                 model.addAttribute("errorMessage", "Prodotto non trovato.");
                 return "products/productEdit";
             }
 
+            // Aggiorna i campi testuali
             existingProduct.setName(product.getName());
             existingProduct.setDescription(product.getDescription());
             existingProduct.setShortDescription(product.getShortDescription());
             existingProduct.setPrice(product.getPrice());
             existingProduct.setStock(product.getStock());
             existingProduct.setBrand(product.getBrand());
-
-            String productDir = UPLOAD_DIR + product.getId() + "/";
-            Path productPath = Paths.get(productDir);
-            if (!Files.exists(productPath)) {
-                Files.createDirectories(productPath);
-            }
-            if (!mainImage.isEmpty()) {
-                mainImage.transferTo(productPath.resolve("main.jpg"));
-                existingProduct.setImageUrl("/images/products/" + product.getId());
-            }
-
-            List<String> updatedImages = new ArrayList<>(existingImages != null ? existingImages : new ArrayList<>());
-            int thumbIndex = updatedImages.size() + 1;
-            for (MultipartFile file : newAdditionalImages) {
-                if (!file.isEmpty()) {
-                    String fileName = "thumb" + thumbIndex++ + ".jpg";
-                    file.transferTo(productPath.resolve(fileName));
-                    updatedImages.add(existingProduct.getImageUrl() + "/" + fileName);
-                }
-            }
+            logger.info("Campi testuali aggiornati: {}", existingProduct);
 
             productService.updateProduct(existingProduct);
             Product updatedProduct = productService.getProductById(product.getId());
-            updatedProduct.setAdditionalImages(productService.loadAdditionalImages(product.getId()));
+            logger.info("Dettagli prodotto aggiornati con successo: {}", updatedProduct);
             model.addAttribute("product", updatedProduct);
-            model.addAttribute("successMessage", "Prodotto aggiornato con successo.");
-        } catch (IOException e) {
-            logger.error("Errore durante il salvataggio delle immagini: {}", e.getMessage());
-            model.addAttribute("errorMessage", "Errore durante l'aggiornamento del prodotto.");
+            model.addAttribute("successMessage", "Dettagli del prodotto aggiornati con successo.");
+        } catch (Exception e) {
+            logger.error("Errore durante l'aggiornamento dei dettagli del prodotto: {}", e.getMessage(), e);
+            model.addAttribute("errorMessage", "Errore durante l'aggiornamento dei dettagli: " + e.getMessage());
             Product productOnError = productService.getProductById(product.getId());
-            productOnError.setAdditionalImages(productService.loadAdditionalImages(product.getId()));
+            model.addAttribute("product", productOnError);
+        }
+        return "products/productEdit";
+    }
+
+    @PostMapping("/update-images/{id}")
+    public String updateProductImages(
+            @PathVariable("id") int id,
+            @RequestParam(value = "mainImage", required = false) MultipartFile mainImage,
+            @RequestParam(value = "newAdditionalImages", required = false) MultipartFile[] newAdditionalImages,
+            Model model) {
+        logger.info("Richiesta POST ricevuta per /admin/products/update-images/{}", id);
+        logger.info("Main image ricevuta: {}, vuota: {}", mainImage != null ? mainImage.getOriginalFilename() : "null", mainImage == null || mainImage.isEmpty());
+        logger.info("Immagini aggiuntive ricevute: {}", newAdditionalImages != null ? newAdditionalImages.length : 0);
+
+        try {
+            Product product = productService.getProductById(id);
+            if (product == null) {
+                logger.error("Prodotto non trovato con ID: {}", id);
+                model.addAttribute("errorMessage", "Prodotto non trovato.");
+                return "redirect:/products";
+            }
+
+            // Gestione immagini
+            String productDir = ResourceUtils.getFile("classpath:" + UPLOAD_DIR + id + "/").getAbsolutePath();
+            Path productPath = Paths.get(productDir);
+            if (!Files.exists(productPath)) {
+                Files.createDirectories(productPath);
+                logger.info("Cartella creata: {}", productDir);
+            }
+
+            if (mainImage != null && !mainImage.isEmpty()) {
+                mainImage.transferTo(productPath.resolve("main.jpg"));
+                logger.info("Main image salvata: {}", productPath.resolve("main.jpg"));
+            }
+
+            List<String> updatedImages = new ArrayList<>(product.getAdditionalImages() != null ? product.getAdditionalImages() : new ArrayList<>());
+            int thumbIndex = updatedImages.size() - (updatedImages.isEmpty() ? 0 : 1); // Sottrai 1 per main.jpg
+            if (newAdditionalImages != null) {
+                for (MultipartFile file : newAdditionalImages) {
+                    if (file != null && !file.isEmpty()) {
+                        String fileName = "thumb" + thumbIndex++ + ".jpg";
+                        file.transferTo(productPath.resolve(fileName));
+                        logger.info("Immagine aggiuntiva salvata: {}", fileName);
+                    }
+                }
+            }
+
+            productService.renameImagesInFolder(id);
+            product.setAdditionalImages(productService.loadAdditionalImages(id));
+            logger.info("Immagini aggiornate con successo per il prodotto {}: {}", id, product.getAdditionalImages());
+            model.addAttribute("product", product);
+            model.addAttribute("successMessage", "Immagini aggiornate con successo.");
+        } catch (IOException e) {
+            logger.error("Errore durante il salvataggio delle immagini: {}", e.getMessage(), e);
+            model.addAttribute("errorMessage", "Errore durante l'aggiornamento delle immagini: " + e.getMessage());
+            Product productOnError = productService.getProductById(id);
+            model.addAttribute("product", productOnError);
+        } catch (Exception e) {
+            logger.error("Errore generico durante l'aggiornamento delle immagini: {}", e.getMessage(), e);
+            model.addAttribute("errorMessage", "Errore durante l'aggiornamento delle immagini: " + e.getMessage());
+            Product productOnError = productService.getProductById(id);
             model.addAttribute("product", productOnError);
         }
         return "products/productEdit";
     }
 
     @PostMapping("/{id}/delete-image")
-public String deleteProductImage(@PathVariable("id") int id, @RequestParam("imageUrl") String imageUrl, Model model) {
-    try {
-        Product product = productService.getProductById(id);
-        if (product == null) {
-            model.addAttribute("errorMessage", "Prodotto non trovato.");
-            return "redirect:/admin/products/edit/" + id;
+    public String deleteProductImage(@PathVariable("id") int id, @RequestParam("imageUrl") String imageUrl, Model model) {
+        try {
+            Product product = productService.getProductById(id);
+            if (product == null) {
+                model.addAttribute("errorMessage", "Prodotto non trovato.");
+                return "redirect:/admin/products/edit/" + id;
+            }
+
+            logger.info("Tentativo di eliminare immagine con URL: {}", imageUrl);
+
+            String fileName = Paths.get(imageUrl).getFileName().toString();
+            String filePath = ResourceUtils.getFile("classpath:" + UPLOAD_DIR + id + "/").getAbsolutePath() + "/" + fileName;
+            Path path = Paths.get(filePath);
+            logger.info("Percorso file da eliminare: {}", path.toAbsolutePath());
+
+            if (Files.exists(path)) {
+                Files.delete(path);
+                logger.info("Immagine eliminata dal filesystem: {}", filePath);
+                productService.renameImagesInFolder(id);
+                model.addAttribute("successMessage", "Immagine eliminata con successo.");
+            } else {
+                logger.warn("File non trovato: {}", filePath);
+                productService.renameImagesInFolder(id);
+                model.addAttribute("successMessage", "Il file non era presente, ma la lista è stata sincronizzata.");
+            }
+
+            product.setAdditionalImages(productService.loadAdditionalImages(id));
+            model.addAttribute("product", product);
+            return "products/productEdit";
+        } catch (IOException e) {
+            logger.error("Errore durante l'eliminazione dell'immagine: {}", e.getMessage());
+            model.addAttribute("errorMessage", "Errore durante l'eliminazione dell'immagine: " + e.getMessage());
+            Product product = productService.getProductById(id);
+            product.setAdditionalImages(productService.loadAdditionalImages(id));
+            model.addAttribute("product", product);
+            return "products/productEdit";
         }
-
-        logger.info("Tentativo di eliminare immagine con URL: {}", imageUrl);
-
-        // Costruisci il percorso usando ResourceUtils per il classpath
-        String filePath = "classpath:static" + imageUrl;
-        File fileToDelete = ResourceUtils.getFile(filePath);
-        Path path = fileToDelete.toPath();
-
-        if (Files.exists(path)) {
-            Files.delete(path);
-            logger.info("Immagine eliminata dal filesystem: {}", filePath);
-            productService.renameImagesInFolder(id); // Rinomina i file dopo l'eliminazione
-            model.addAttribute("successMessage", "Immagine eliminata con successo.");
-        } else {
-            logger.warn("File non trovato: {}", filePath);
-            productService.renameImagesInFolder(id); // Rinomina comunque per sincronizzare
-            model.addAttribute("successMessage", "Il file non era presente, ma la lista è stata sincronizzata.");
-        }
-
-        product.setAdditionalImages(productService.loadAdditionalImages(id));
-        model.addAttribute("product", product);
-        return "products/productEdit";
-    } catch (IOException e) {
-        logger.error("Errore durante l'eliminazione dell'immagine: {}", e.getMessage());
-        model.addAttribute("errorMessage", "Errore durante l'eliminazione dell'immagine.");
-        Product product = productService.getProductById(id);
-        product.setAdditionalImages(productService.loadAdditionalImages(id));
-        model.addAttribute("product", product);
-        return "products/productEdit";
     }
-}
 }

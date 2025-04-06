@@ -33,8 +33,7 @@ public class Product {
     @Column(name = "stock")
     private int stock;
 
-    @Column(name = "image_url", length = 255)
-    private String imageUrl;
+  
 
 
 
