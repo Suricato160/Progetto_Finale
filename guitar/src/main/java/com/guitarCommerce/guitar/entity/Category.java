@@ -20,11 +20,11 @@ public class Category {
 
     
     @Id
-    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private int id;
 
-    @Column(name = "name", length = 45)
+    @Column(name = "name")
     private String name;
 
 

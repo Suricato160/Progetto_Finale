@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Dettagli Ordine - Guitar Commerce</title>
@@ -15,33 +15,7 @@
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container">
-            <a class="navbar-brand" href="/">Guitar Commerce</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{/products}">Prodotti</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{admin/users}">Utenti</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{/orders}">Ordini</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{/contact}">Contatti</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{/profile}">Profilo</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <div th:replace="~{fragments :: navbar}"></div>
 
     <!-- Contenuto principale -->
     <section class="container my-5">
@@ -55,7 +29,7 @@
             <div class="card-body">
                 <h5 class="card-title">Ordine #<span th:text="${order.id}"></span></h5>
                 <p><strong>Data:</strong> <span th:text="${order.orderDate}"></span></p>
-                <p><strong>Utente:</strong> <span th:text="${order.user.username}"></span></p>
+                <p sec:authorize="hasRole('ADMIN')"><strong>Utente:</strong> <span th:text="${order.user.username}"></span></p>
                 <p><strong>Totale:</strong> <span th:text="${order.totalAmount} + ' €'"></span></p>
                 <p><strong>Stato:</strong> <span th:text="${order.status}" th:classappend="${order.status == 'PENDING' ? 'status-pending' : order.status == 'SHIPPED' ? 'status-shipped' : order.status == 'DELIVERED' ? 'status-delivered' : order.status == 'CANCELLED' ? 'status-cancelled' : 'status-failed'}"></span></p>
 
@@ -82,21 +56,23 @@
                     </tbody>
                 </table>
 
-                <!-- Form per cambiare lo stato -->
-                <h6>Cambia Stato Ordine</h6>
-                <form th:action="@{/orders/{id}/update-status(id=${order.id})}" method="post">
-                    <div class="mb-3">
-                        <label for="status" class="form-label">Stato</label>
-                        <select class="form-control" id="status" name="status" required>
-                            <option value="PENDING" th:selected="${order.status == 'PENDING'}">In Attesa</option>
-                            <option value="SHIPPED" th:selected="${order.status == 'SHIPPED'}">Spedito</option>
-                            <option value="DELIVERED" th:selected="${order.status == 'DELIVERED'}">Consegnato</option>
-                            <option value="CANCELLED" th:selected="${order.status == 'CANCELLED'}">Annullato</option>
-                            <option value="FAILED" th:selected="${order.status == 'FAILED'}">Fallito</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Aggiorna Stato</button>
-                </form>
+                <!-- Form per cambiare lo stato (solo per ADMIN) -->
+                <div sec:authorize="hasRole('ADMIN')">
+                    <h6>Cambia Stato Ordine</h6>
+                    <form th:action="@{/orders/{id}/update-status(id=${order.id})}" method="post">
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Stato</label>
+                            <select class="form-control" id="status" name="status" required>
+                                <option value="PENDING" th:selected="${order.status == 'PENDING'}">In Attesa</option>
+                                <option value="SHIPPED" th:selected="${order.status == 'SHIPPED'}">Spedito</option>
+                                <option value="DELIVERED" th:selected="${order.status == 'DELIVERED'}">Consegnato</option>
+                                <option value="CANCELLED" th:selected="${order.status == 'CANCELLED'}">Annullato</option>
+                                <option value="FAILED" th:selected="${order.status == 'FAILED'}">Fallito</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Aggiorna Stato</button>
+                    </form>
+                </div>
             </div>
         </div>
 

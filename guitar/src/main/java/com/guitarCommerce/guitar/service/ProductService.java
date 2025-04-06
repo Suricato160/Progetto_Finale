@@ -178,4 +178,9 @@ public class ProductService {
          logger.info("Prodotto creato con ID: {}", savedProduct.getId());
          return savedProduct;
      }
+
+
+     public List<Product> getProductsByCategory(int categoryId) {
+        return productRepository.findByCategoryId(categoryId);
+    }
 }

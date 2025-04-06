@@ -55,4 +55,10 @@ public class CategoryService {
         Category category = getCategoryById(id); // Usa il metodo definito sopra
         categoryRepository.delete(category);
     }
+
+
+    public Category getCategoryById(int id) {
+        return categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Categoria non trovata"));
+    }
 }

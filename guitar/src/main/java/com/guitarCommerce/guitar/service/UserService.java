@@ -94,4 +94,10 @@ public class UserService {
         String phoneRegex = "^\\+?[0-9]{1,3}?\\s?\\(?([0-9]{1,3}?)\\)?[\\s.-]?[0-9]{1,4}[\\s.-]?[0-9]{1,4}[\\s.-]?[0-9]{1,9}$";
         return phoneNumber != null && phoneNumber.matches(phoneRegex);
     }
+
+    // Metodo per compatibilità con CartController
+    public User getUserById(int id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Utente non trovato"));
+    }
 }

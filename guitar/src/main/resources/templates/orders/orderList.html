@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Guitar Commerce - Lista Ordini</title>
@@ -8,61 +8,42 @@
         .status-pending { background-color: #fff3cd; }
         .status-shipped { background-color: #d4edda; }
         .status-delivered { background-color: #cce5ff; }
+        .status-cancelled { background-color: #f8d7da; }
+        .status-failed { background-color: #f5c6cb; }
     </style>
 </head>
 <body>
-     <!-- Navbar -->
-     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container">
-            <a class="navbar-brand" href="/">Guitar Commerce</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{/products}">Prodotti</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{admin/users}">Utenti</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{/orders}">Ordini</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{/contact}">Contatti</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{/profile}">Profilo</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <!-- Navbar -->
+    <div th:replace="~{fragments :: navbar}"></div>
 
     <!-- Contenuto principale -->
     <section class="container my-5">
         <h1>Lista Ordini</h1>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>ID Ordine</th>
-                    <th>Utente</th>
-                    <th>Data</th>
-                    <th>Totale</th>
-                    <th>Stato</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="order : ${orders}" th:classappend="${order.status == 'PENDING' ? 'status-pending' : order.status == 'SHIPPED' ? 'status-shipped' : 'status-delivered'}">
-                    <td><a th:href="@{/orders/{id}(id=${order.id})}" th:text="${order.id}"></a></td>
-                    <td th:text="${order.user.username}"></td>
-                    <td th:text="${order.orderDate}"></td>
-                    <td th:text="${order.totalAmount} + ' €'"></td>
-                    <td th:text="${order.status}"></td>
-                </tr>
-            </tbody>
-        </table>
+        <div th:if="${orders.isEmpty()}">
+            <p>Nessun ordine trovato.</p>
+        </div>
+        <div th:unless="${orders.isEmpty()}">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID Ordine</th>
+                        <th sec:authorize="hasRole('ADMIN')">Utente</th>
+                        <th>Data</th>
+                        <th>Totale</th>
+                        <th>Stato</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="order : ${orders}" th:classappend="${order.status == 'PENDING' ? 'status-pending' : order.status == 'SHIPPED' ? 'status-shipped' : order.status == 'DELIVERED' ? 'status-delivered' : order.status == 'CANCELLED' ? 'status-cancelled' : 'status-failed'}">
+                        <td><a th:href="@{/orders/{id}(id=${order.id})}" th:text="${order.id}"></a></td>
+                        <td sec:authorize="hasRole('ADMIN')" th:text="${order.user.username}"></td>
+                        <td th:text="${order.orderDate}"></td>
+                        <td th:text="${order.totalAmount} + ' €'"></td>
+                        <td th:text="${order.status}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </section>
 
     <!-- Footer -->

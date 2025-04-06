@@ -1,6 +1,7 @@
 package com.guitarCommerce.guitar.controller;
 
 import com.guitarCommerce.guitar.entity.Product;
+import com.guitarCommerce.guitar.service.CategoryService;
 import com.guitarCommerce.guitar.service.ProductService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,9 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
+    @Autowired
+    private CategoryService categoryService;
+
 
 
 
@@ -28,6 +32,8 @@ public class ProductController {
     public String getAllProducts(Model model) {
         List<Product> products = productService.getAllProducts();
         model.addAttribute("products", products);
+        model.addAttribute("categories", categoryService.getAllCategories()); // Necessario per il navbar
+
         return "products/products";
     }
 
@@ -47,5 +53,14 @@ public class ProductController {
         // Logica per aggiungere al carrello (es. salvare in sessione o database)
         System.out.println("Aggiunto al carrello: Product ID " + productId + ", Quantità: " + quantity);
         return "redirect:/products/" + productId; // Torna alla pagina del prodotto
+    }
+
+
+
+
+    @GetMapping("/category/{id}")
+    public String showProductsByCategory(@PathVariable("id") int categoryId, Model model) {
+        model.addAttribute("products", productService.getProductsByCategory(categoryId));
+        return "products/products";
     }
 }

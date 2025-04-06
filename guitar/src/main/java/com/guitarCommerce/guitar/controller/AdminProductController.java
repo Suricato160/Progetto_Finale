@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -337,4 +338,46 @@ public String deleteProductImage(@PathVariable("id") int id, @RequestParam("imag
             return "products/productCreate";
         }
     }
+
+
+
+
+
+    // ========================================================================
+    @PostMapping("/delete/{id}")
+public String deleteProduct(@PathVariable("id") int id, Model model) {
+    logger.info("Richiesta POST ricevuta per /admin/products/delete/{}", id);
+    try {
+        Product product = productService.getProductById(id);
+        if (product == null) {
+            logger.error("Prodotto non trovato con ID: {}", id);
+            model.addAttribute("errorMessage", "Prodotto non trovato.");
+            return "redirect:/products";
+        }
+
+        // Elimina le immagini associate
+        String classPath = ResourceUtils.getFile("classpath:").getAbsolutePath();
+        String productDir = classPath + File.separator + UPLOAD_DIR + id;
+        Path productPath = Paths.get(productDir);
+        if (Files.exists(productPath)) {
+            Files.walk(productPath)
+                 .sorted(Comparator.reverseOrder())
+                 .map(Path::toFile)
+                 .forEach(File::delete);
+            logger.info("Cartella delle immagini eliminata: {}", productDir);
+        }
+
+        // Elimina il prodotto dal database
+        productService.deleteProduct(id);
+        logger.info("Prodotto eliminato con successo: ID={}", id);
+        model.addAttribute("successMessage", "Prodotto eliminato con successo.");
+    } catch (IOException e) {
+        logger.error("Errore durante l'eliminazione delle immagini: {}", e.getMessage(), e);
+        model.addAttribute("errorMessage", "Errore durante l'eliminazione delle immagini: " + e.getMessage());
+    } catch (Exception e) {
+        logger.error("Errore generico durante l'eliminazione del prodotto: {}", e.getMessage(), e);
+        model.addAttribute("errorMessage", "Errore durante l'eliminazione del prodotto: " + e.getMessage());
+    }
+    return "redirect:/products";
+}
 }
