@@ -21,13 +21,13 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/profile/**").authenticated()
-                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/profile/**").authenticated()  // per accedere a questo end point l'utente deve accedere
+                .requestMatchers("/admin/**").hasRole("ADMIN")  // per accedere a questo end point l'utente deve avere il ruolo Admin
                 .anyRequest().permitAll()
             )
             .formLogin(form -> form
                 .loginPage("/login")
-                .defaultSuccessUrl("/profile", true)
+                .defaultSuccessUrl("/profile", true)  // una volta loggato vado sul profilo
                 .permitAll()
             )
             .logout(logout -> logout

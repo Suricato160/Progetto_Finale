@@ -12,6 +12,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.guitarCommerce.guitar.entity.Category;
 import com.guitarCommerce.guitar.service.CategoryService;
 
+
+
+// da commentare
+
+
+
+
 @Controller
 @RequestMapping("/admin/categories")
 public class AdminCategoryController {
@@ -24,7 +31,7 @@ public class AdminCategoryController {
         return categoryService.getCategoryById(id);
     }
 
-    @PostMapping("/add")
+    @PostMapping("/add")     // aggiungo cate
     public String addCategory(
             @RequestParam("name") String name,
             @RequestParam(value = "redirectTo", defaultValue = "/products") String redirectTo,

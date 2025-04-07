@@ -1,61 +1,218 @@
+/* Reset e Stili Generali */
+body {
+    background-color: #f8f9fa; /* Sfondo grigio chiaro */
+    color: #333333; /* Testo scuro */
+    font-family: 'Arial', sans-serif;
+}
 
-
-/* Navbar */
 /* Navbar */
 .navbar {
-    background-color: #b30f0f !important; /* Rosso, con !important per sovrascrivere bg-light */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Ombra leggera */
+    background-color: #ffffff !important; /* Sfondo bianco */
+    border-bottom: 1px solid #e0e0e0; /* Bordo chiaro */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Ombra leggera */
 }
 
+.navbar-brand.text-accent {
+    color: #ef1400 !important; /* Blu per il logo */
+    font-weight: bold;
+}
 
+.nav-link {
+    color: #333333 !important; /* Testo scuro */
+}
 
 .nav-link:hover {
-    color: #f55f23 !important; /* Giallo al passaggio del mouse */
-}
-/* Tuo stile per header-custom (aggiornato con il tuo ultimo codice) */
-.header-custom {
-    background-image: url('/images/nav.jpg'); /* Percorso della tua immagine */
-    background-size: cover;
-    background-position: center -180px; /* Spostato come richiesto */
-    background-repeat: no-repeat;
-    padding: 5rem 0;
-    position: relative;
+    color: #c21000 !important; /* Blu al passaggio del mouse */
 }
 
-.header-custom::before {
+.dropdown-menu {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+}
+
+.dropdown-item {
+    color: #333333;
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+    color: #c21000 ;
+}
+
+/* Sezione Eroe (Hero Section) */
+.hero-section {
+    background: url('/images/hero-bg.avif') no-repeat center right;
+    background-size: cover;
+    min-height: 600px;
+    position: relative;
+    background-position: calc(50% + 100px) center; /* Sposta l'immagine verso destra di 100px */
+    background-size: 120%; /* Zoom dell'immagine al 110% */
+}
+
+.hero-section::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(255, 255, 255, 0.727); /* Overlay chiaro */
+    color: #f8f9fa;
+   /* background-color: rgba(255, 255, 255, 0.5);  Overlay chiaro per migliorare la leggibilità */
+}
+
+.text-bw{
+    color: #f8f9fa;
+}
+
+.hero-section .container {
+    position: relative;
     z-index: 1;
 }
 
-.header-custom h1,
-.header-custom p {
-    position: relative;
-    z-index: 2;
-    color: #333; /* Testo scuro per contrasto con overlay chiaro */
+.text-accent {
+    color: #ef1400 !important; /* Blu come colore di accento */
 }
 
-
-
-/* Stile per le immagini generiche (es. index.html) */
-
-
-
-
-
-
-/* Pulsante Dettagli */
-.product-card .btn {
-    margin-top: 10px;
-    background-color: #c51d17;
-    border: none;
+.price {
+    font-size: 2.5rem;
+    font-weight: bold;
     color: #ffffff;
 }
 
+.btn-accent {
+    background-color: #ef1400;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    font-weight: bold;
+}
+
+.btn-accent:hover {
+    background-color: #c21000;
+    color: #ffffff;
+}
+
+/* Sezione Chi Siamo */
+.about-section {
+    background-color: #ffffff; /* Sfondo bianco */
+}
+
+/* Sezione Servizi */
+.services-section {
+    background-color: #f8f9fa; /* Sfondo grigio chiaro */
+}
+
+.services-section i {
+    margin-bottom: 10px;
+}
+
+/* Sezione Prodotti */
+.products-section {
+    background-color: #ffffff;
+}
+
+.product-card {
+    background-color: #f8f9fa; /* Sfondo grigio chiaro per le card */
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    transition: transform 0.2s;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.product-card img {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 15px;
+}
+
+/* Sezione Testimonianze */
+.testimonials-section {
+    background-color: #f8f9fa;
+}
+
+.blockquote {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 5px;
+    border-left: 5px solid #ef1400;
+}
+
+.blockquote-footer {
+    color: #666666;
+}
+
+/* Sezione Blog */
+.blog-section {
+    background-color: #ffffff;
+}
+
+.blog-card {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    border: 1px solid #e0e0e0;
+}
+
+.blog-card img {
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+/* Sezione Newsletter */
+.newsletter-section {
+    background-color: #f8f9fa;
+    text-align: center;
+}
+
+.newsletter-section .form-control {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    color: #333333;
+}
+
+.newsletter-section .form-control::placeholder {
+    color: #888888;
+}
+
+/* Footer */
+.footer-section {
+    background-color: #ffffff;
+    border-top: 1px solid #e0e0e0;
+}
+
+.social-icons a {
+    color: #333333;
+    margin-right: 10px;
+    font-size: 1.2rem;
+}
+
+.social-icons a:hover {
+    color: #ef1400;
+}
+
+.footer-section ul li a {
+    color: #333333;
+}
+
+.footer-section ul li a:hover {
+    color: #ef1400;
+}
+
+.footer-section p {
+    color: #666666;
+}
 
 
+
+
+.cart-container {
+    margin-bottom: 50px; /* Puoi regolare questo valore (ad esempio, 50px, 80px, ecc.) per ottenere lo spazio desiderato */
+}
