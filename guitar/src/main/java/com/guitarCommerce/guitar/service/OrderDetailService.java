@@ -10,6 +10,8 @@ import com.guitarCommerce.guitar.repository.OrderDetailRepository;
 
 import java.util.List;
 
+// da commentare  -  rifattorializzato
+
 @Service
 public class OrderDetailService {
 

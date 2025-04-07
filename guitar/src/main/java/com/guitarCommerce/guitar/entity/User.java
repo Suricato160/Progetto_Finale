@@ -33,8 +33,7 @@ public class User {
     private String email;
 
 	@Column(name = "role", nullable = false)
-    private String role = "USER"; // Default a "USER"
-
+    private String role = "USER"; 
 
     @Column(name = "first_name")
     private String firstName;
@@ -57,6 +56,8 @@ public class User {
     @Column(name = "phone")
     private String phone;
     
+    // ----- enum ---------
+
     public enum Role {
 		ADMIN, USER
 	}

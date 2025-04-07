@@ -9,17 +9,24 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
 
+
+// ======================================= ok
+
 @Controller
 public class HomeController {
 
+    // dipendenze
     @Autowired
     private ProductService productService;
 
+    // =========================================
+    // recupero i prodotti per la home page
     @GetMapping("/")
     public String home(Model model) {
-        // Recupera alcuni prodotti (es. tutti o filtrati)
         List<Product> products = productService.getAllProducts();
         model.addAttribute("products", products);
-        return "index"; // Nome del template (index.html)
+        return "index"; 
     }
 }
+
+

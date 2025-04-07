@@ -9,13 +9,21 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 
 import java.util.List;
 
-@ControllerAdvice
+// ======================================= ok
+
+// Aggiunge un elenco di categorie al modello prima di ogni richiesta
+// rendendo le categorie disponibili in tutte le viste. 
+// Mi serve per il menu di navigazione, che deve essere visibile in tutte le pagine.
+
+@ControllerAdvice // per aggiungere un comportamento globale a tutti i controller dell'applicazione.
 public class GlobalControllerAdvice {
 
+    // Dipendenze
     @Autowired
     private CategoryService categoryService;
 
-    @ModelAttribute
+
+    @ModelAttribute // indica che questo metodo deve essere eseguito prima di ogni richiesta gestita da un controller
     public void addCategoriesToModel(Model model) {
         List<Category> categories = categoryService.getAllCategories();
         model.addAttribute("categories", categories);

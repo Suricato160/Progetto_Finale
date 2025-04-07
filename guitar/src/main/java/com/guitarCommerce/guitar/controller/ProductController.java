@@ -11,10 +11,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+// ======================================= ok
+
 @Controller
 @RequestMapping("/products")
 public class ProductController {
 
+
+    // dipendenze
     @Autowired
     private ProductService productService;
 
@@ -22,12 +26,9 @@ public class ProductController {
     private CategoryService categoryService;
 
 
-
-
-// =====================================================================
-//              Caricamento pagina
-
-
+    // =========================================================
+    // lista di tutti i prodotti
+    // lista di tutte le categorie
     @GetMapping
     public String getAllProducts(Model model) {
         List<Product> products = productService.getAllProducts();
@@ -37,9 +38,8 @@ public class ProductController {
         return "products/products";
     }
 
-// =====================================================================
-//   
-
+    // =========================================================
+    // recupera un prodotto specifico
     @GetMapping("/{id}")
     public String getProductDetail(@PathVariable Integer id, Model model) {
         Product product = productService.getProductById(id);
@@ -47,17 +47,16 @@ public class ProductController {
         return "products/productDetail"; // Nome del template
     }
 
-    // Aggiunta al carrello (logica base, da espandere)
+    // =========================================================
+    // Aggiunta al carrello
     @PostMapping("/cart/add")
     public String addToCart(@RequestParam Integer productId, @RequestParam Integer quantity) {
-        // Logica per aggiungere al carrello (es. salvare in sessione o database)
         System.out.println("Aggiunto al carrello: Product ID " + productId + ", Quantità: " + quantity);
         return "redirect:/products/" + productId; // Torna alla pagina del prodotto
     }
 
-
-
-
+    // =========================================================
+    // Tutti i prodotti di una specifica categoria
     @GetMapping("/category/{id}")
     public String showProductsByCategory(@PathVariable("id") int categoryId, Model model) {
         model.addAttribute("products", productService.getProductsByCategory(categoryId));

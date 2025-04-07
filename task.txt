@@ -1,0 +1,2 @@
+- aggiungere una voce nel database per i prodotti in promo così da vederli in home, implementare in HomeController
+-  Aggiorna l'indirizzo da controllare

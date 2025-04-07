@@ -33,12 +33,6 @@ public class Product {
     @Column(name = "stock")
     private int stock;
 
-  
-
-
-
-
-
     @Column(name = "brand")
     private String brand;
 
