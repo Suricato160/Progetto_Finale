@@ -13,9 +13,7 @@ import org.springframework.ui.Model;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 // da commentare  -  rifattorializzato
 
@@ -23,6 +21,7 @@ import java.util.Map;
 @Service
 public class CartService {
 
+    // dependency 
     @Autowired
     private CartRepository cartRepository;
 
@@ -32,48 +31,57 @@ public class CartService {
     @Autowired
     private UserService userService;
 
-    // Rimosso @Autowired per OrderService
+
+    // ===================================================================
+
 
     // Recupera i dettagli del carrello e popola il model
     public String getCartDetails(UserDetails userDetails, Model model) {
+        // sarà la lista nel carrello
         List<Cart> cartItems;
+        // sarà id utente
         int userId = 0;
-        BigDecimal total = BigDecimal.ZERO;
-        Map<Integer, BigDecimal> subtotals = new HashMap<>();
 
+        // totale carrello
+        BigDecimal total = BigDecimal.ZERO;
+    
+        // se non c'è un user viene restituito il carrello vuoto
         if (userDetails == null) {
             cartItems = Collections.emptyList();
         } else {
+            // recupero l'id del loggato
             userId = getUserIdFromUserDetails(userDetails);
+            // recupero i prodotti salvati
             cartItems = getCartItems(userId);
+            // Calcola il subtotale per ogni item
             for (Cart item : cartItems) {
-                BigDecimal price = item.getProduct().getPrice();
-                BigDecimal quantity = BigDecimal.valueOf(item.getQuantity());
-                BigDecimal subtotal = price.multiply(quantity);
-                subtotals.put(item.getId(), subtotal);
-                total = total.add(subtotal);
+                item.calculateSubtotal();
+                // sommo tutto
+                total = total.add(item.getSubtotal());
             }
         }
-
+        // restituisco tutto
         model.addAttribute("cartItems", cartItems);
-        model.addAttribute("subtotals", subtotals);
         model.addAttribute("total", total);
         model.addAttribute("userId", userId);
         return "cart";
     }
 
+    // aggiungo al carrello
     @Transactional
     public void addToCart(UserDetails userDetails, int productId, int quantity) {
         int userId = getUserIdFromUserDetails(userDetails);
         addToCart(userId, productId, quantity);
     }
 
+    // rimuovo dal carrello
     @Transactional
     public void removeFromCart(UserDetails userDetails, int productId) {
         int userId = getUserIdFromUserDetails(userDetails);
         removeFromCart(userId, productId);
     }
 
+    // aggiorno la quantità del prodotto nel carrello
     @Transactional
     public void updateQuantity(UserDetails userDetails, int productId, int quantity) {
         int userId = getUserIdFromUserDetails(userDetails);

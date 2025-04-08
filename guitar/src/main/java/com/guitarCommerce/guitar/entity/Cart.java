@@ -3,6 +3,7 @@ package com.guitarCommerce.guitar.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -28,4 +29,16 @@ public class Cart {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "products_id")
     private Product product;
+
+    @Transient // Questa proprietà non viene salvata nel database
+    private BigDecimal subtotal;
+
+    // Metodo helper per calcolare il subtotale (opzionale, se vuoi incapsularlo)
+    public void calculateSubtotal() {
+        if (product != null && quantity > 0) {
+            this.subtotal = product.getPrice().multiply(BigDecimal.valueOf(quantity));
+        } else {
+            this.subtotal = BigDecimal.ZERO;
+        }
+    }
 }
