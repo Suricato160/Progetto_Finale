@@ -44,9 +44,6 @@ public class Order {
     public enum Status{
         PENDING, SHIPPED, DELIVERED, CANCELLED, FAILED
     }
-
-
-
     // ----- relazioni tra tabelle ---------
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -55,6 +52,4 @@ public class Order {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderDetail> orderDetails;
-
-    
 }

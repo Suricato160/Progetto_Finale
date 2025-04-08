@@ -144,7 +144,7 @@
         <div class="card mb-4">
             <div class="card-body">
                 <h5 class="card-title">Indirizzo (Spedizione e Fatturazione)</h5>
-                <form th:action="@{/profile/update-name}" method="post" th:object="${user}">
+                <form th:action="@{/profile/update-address}" method="post" th:object="${user}">
                     <div class="mb-3">
                         <label for="firstName" class="form-label">Nome</label>
                         <input type="text" class="form-control" id="firstName" th:field="*{firstName}" required>

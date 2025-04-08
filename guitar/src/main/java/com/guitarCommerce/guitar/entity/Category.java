@@ -26,12 +26,7 @@ public class Category {
 
     @Column(name = "name")
     private String name;
-
-
-
     // ----- relazioni tra tabelle ---------
-
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Product> products;
-    
 }

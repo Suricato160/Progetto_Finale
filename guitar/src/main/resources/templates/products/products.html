@@ -32,7 +32,7 @@
                         <img th:src="@{/images/default.jpg}" alt="Immagine di fallback" />
                     </div>
                     <h3 th:text="${product.name}">Nome Prodotto</h3>
-                    <p th:text="${product.description}">Descrizione breve</p>
+                    <p th:text="${product.shortDescription}">Descrizione breve</p>
                     <p><strong>Prezzo:</strong> <span th:text="${product.price}">0.00</span> €</p>
                     <a th:href="@{/products/{id}(id=${product.id})}" class="btn btn-primary">Dettagli</a>
                     <a th:href="@{/admin/products/edit/{id}(id=${product.id})}" class="btn btn-primary" sec:authorize="hasRole('ADMIN')">Modifica</a>
@@ -43,8 +43,15 @@
                     <form th:action="@{/cart/add/{id}(id=${product.id})}" method="post" style="display:inline;">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                         <input type="hidden" name="quantity" value="1" />
-                        <button type="submit" class="btn btn-sm btn-success mt-2">Aggiungi al Carrello</button>
+                        <button type="submit" class="btn btn-sm btn-success mt-2"
+                                th:disabled="${product.stock <= 0}">
+                            Aggiungi al Carrello
+                        </button>
                     </form>
+                    <div th:if="${product.stock <= 0}" class="text-danger mt-2">
+                        Non disponibile
+                    </div>
+                    
                 </div>
             </div>
         </div>

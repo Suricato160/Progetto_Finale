@@ -1,7 +1,7 @@
 package com.guitarCommerce.guitar.service;
 
-
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,12 +11,17 @@ import com.guitarCommerce.guitar.repository.CategoryRepository;
 
 import org.springframework.transaction.annotation.Transactional;
 
+// ======================================= ok
+
 
 @Service
 public class CategoryService {
-    
+
+    // dependency
     @Autowired
     private CategoryRepository categoryRepository;
+
+    // ==================================================
 
     // Trova tutte le categorie
     public List<Category> getAllCategories() {
@@ -25,14 +30,23 @@ public class CategoryService {
 
     // Trova una categoria per nome
     public Category getCategoryByName(String name) {
-        return categoryRepository.findByName(name)
-                .orElseThrow(() -> new RuntimeException("Category not found with name: " + name));
+        Optional<Category> optionalCategory = categoryRepository.findByName(name);
+        if (optionalCategory.isPresent()) {
+            return optionalCategory.get();
+        } else {
+            throw new RuntimeException("Category not found with name: " + name);
+        }
     }
 
-    // Trova una categoria per ID (aggiunto per evitare di chiamare direttamente la repository)
+    // Trova una categoria per ID (aggiunto per evitare di chiamare direttamente la
+    // repository)
     public Category getCategoryById(Integer id) {
-        return categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
+        Optional<Category> optionalCategory = categoryRepository.findById(id);
+        if (optionalCategory.isPresent()) {
+            return optionalCategory.get();
+        } else {
+            throw new RuntimeException("Category not found with id: " + id);
+        }
     }
 
     // Crea una nuova categoria
@@ -56,9 +70,13 @@ public class CategoryService {
         categoryRepository.delete(category);
     }
 
-
     public Category getCategoryById(int id) {
-        return categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Categoria non trovata"));
+        Optional<Category> optionalCategory = categoryRepository.findById(id);
+        if (optionalCategory.isPresent()) {
+            return optionalCategory.get();
+        } else {
+            throw new RuntimeException("Categoria non trovata");
+        }
     }
+
 }

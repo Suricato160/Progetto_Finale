@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -19,12 +18,13 @@ import com.guitarCommerce.guitar.entity.User;
 import com.guitarCommerce.guitar.repository.OrderRepository;
 
 
-// da commentare  -  rifattorializzato
-
+// ======================================= ok
+// da controllare
 
 @Service
 public class OrderService {
 
+    // dependency
     @Autowired
     private OrderRepository orderRepository;
 
@@ -44,13 +44,14 @@ public class OrderService {
 
     // Trova un ordine per ID
     public Order getOrderById(Integer id) {
-        Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Ordine non trovato"));
-        Hibernate.initialize(order.getOrderDetails());
-        order.getOrderDetails().forEach(detail -> Hibernate.initialize(detail.getProduct()));
-        return order;
+        Order order = orderRepository.findOrderWithDetailsById(id);
+        if (order != null) {
+            return order;
+        } else {
+            throw new RuntimeException("Ordine non trovato");
+        }
     }
-
+    
     // Trova ordini per utente
     public List<Order> getOrdersByUser(Integer userId) {
         return orderRepository.findByUserId(userId);
@@ -65,14 +66,12 @@ public class OrderService {
     public String getOrdersForUser(UserDetails userDetails, Model model) {
         String username = userDetails.getUsername();
         User user = userService.findByUsername(username);
-
         List<Order> orders;
         if (user.getRole().equals("ADMIN")) {
             orders = getAllOrders();
         } else {
             orders = getOrdersByUser(user.getId());
         }
-
         model.addAttribute("orders", orders);
         return "orders/OrderList";
     }
@@ -96,29 +95,7 @@ public class OrderService {
         return "orders/OrderDetail";
     }
 
-    // Nuovo metodo per aggiornare lo stato di un ordine
-    @Transactional
-    public String updateOrderStatus(Integer id, String status, UserDetails userDetails, Model model) {
-        User user = userService.findByUsername(userDetails.getUsername());
-        if (!user.getRole().equals("ADMIN")) {
-            model.addAttribute("error", "Non hai il permesso di aggiornare lo stato dell'ordine.");
-            return "orders/OrderDetail";
-        }
-
-        try {
-            // Converte la stringa ricevuta dal form nell'enum Status
-            Order.Status newStatus = Order.Status.valueOf(status);
-            Order updatedOrder = updateOrderStatus(id, newStatus);
-            model.addAttribute("success", "Stato dell'ordine aggiornato con successo.");
-            model.addAttribute("order", updatedOrder);
-        } catch (IllegalArgumentException e) {
-            model.addAttribute("error", "Stato non valido.");
-            model.addAttribute("order", getOrderById(id));
-        } catch (RuntimeException e) {
-            model.addAttribute("error", e.getMessage());
-        }
-        return "orders/OrderDetail";
-    }
+    
 
     // Crea un nuovo ordine dal carrello
    @Transactional
@@ -163,6 +140,31 @@ public class OrderService {
         return savedOrder;
     }
 
+//  ==================================================================
+    // aggiornare lo stato di un ordine
+    @Transactional
+    public String updateOrderStatus(Integer id, String status, UserDetails userDetails, Model model) {
+        User user = userService.findByUsername(userDetails.getUsername());
+        if (!user.getRole().equals("ADMIN")) {
+            model.addAttribute("error", "Non hai il permesso di aggiornare lo stato dell'ordine.");
+            return "orders/OrderDetail";
+        }
+
+        try {
+            // Converte la stringa ricevuta dal form nell'enum Status
+            Order.Status newStatus = Order.Status.valueOf(status);
+            Order updatedOrder = updateOrderStatus(id, newStatus);
+            model.addAttribute("success", "Stato dell'ordine aggiornato con successo.");
+            model.addAttribute("order", updatedOrder);
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("error", "Stato non valido.");
+            model.addAttribute("order", getOrderById(id));
+        } catch (RuntimeException e) {
+            model.addAttribute("error", e.getMessage());
+        }
+        return "orders/OrderDetail";
+    }
+
     // Aggiorna lo stato di un ordine
     @Transactional
     public Order updateOrderStatus(Integer id, Order.Status status) {
@@ -170,6 +172,8 @@ public class OrderService {
         order.setStatus(status);
         return orderRepository.save(order);
     }
+
+    //  ==================================================================
 
     // Elimina un ordine
     @Transactional

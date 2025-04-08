@@ -15,5 +15,7 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 
     //Query per trovare ordini per stato (pedding, ecc.)
     List<Order> findByStatus(Order.Status status);
+
+    Order findOrderWithDetailsById(Integer id);
     
 }

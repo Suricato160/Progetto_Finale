@@ -20,8 +20,5 @@ public interface ProductRepository extends JpaRepository<Product, Integer>{
     //query per trovare prodotti per nome
     Optional<Product> findByName(String name);
 
-    //query per trovare prodotti per range di prezzo
-
-
     
 } 

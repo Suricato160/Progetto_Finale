@@ -9,8 +9,9 @@ import com.guitarCommerce.guitar.entity.Product;
 import com.guitarCommerce.guitar.repository.OrderDetailRepository;
 
 import java.util.List;
+import java.util.Optional;
 
-// da commentare  -  rifattorializzato
+// ======================================= ok
 
 @Service
 public class OrderDetailService {
@@ -56,8 +57,13 @@ public class OrderDetailService {
     // Elimina un dettaglio dell'ordine
     @Transactional
     public void deleteOrderDetail(Integer id) {
-        OrderDetail orderDetail = orderDetailRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("OrderDetail not found with id: " + id));
-        orderDetailRepository.delete(orderDetail);
+        Optional<OrderDetail> optionalOrderDetail = orderDetailRepository.findById(id);
+        if (optionalOrderDetail.isPresent()) {
+            OrderDetail orderDetail = optionalOrderDetail.get();
+            orderDetailRepository.delete(orderDetail);
+        } else {
+            throw new RuntimeException("OrderDetail not found with id: " + id);
+        }
     }
+
 }

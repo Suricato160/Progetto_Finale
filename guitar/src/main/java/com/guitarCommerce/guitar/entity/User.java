@@ -64,9 +64,7 @@ public class User {
 
     // ----- relazioni tra tabelle ---------
 
-
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Order> orders;
 
-    
 }

@@ -1,25 +1,26 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <div th:replace="~{fragments :: head}"></div>
-</head>
+    <head>
+        <title>Carrello</title>
+        <th:block th:replace="~{fragments :: head}"></th:block>
+    </head>
+    
 <body>
     <header>
         <div th:replace="~{fragments :: navbar}"></div>
     </header>
     <div class="container mt-4 cart-container">
         <h1>Carrello</h1>
-        <div th:if="${cartItems.isEmpty()}">
+        <div th:if="${cartItems == null or cartItems.isEmpty()}">
             <p>Il tuo carrello è vuoto.</p>
         </div>
-        <div th:unless="${cartItems.isEmpty()}">
+        <div th:if="${cartItems != null and !cartItems.isEmpty()}">
             <table class="table">
                 <thead>
                     <tr>
                         <th>Prodotto</th>
                         <th>Prezzo Unitario</th>
                         <th>Quantità</th>
-                        <th>Subtotale</th>
                         <th>Azioni</th>
                     </tr>
                 </thead>
@@ -34,7 +35,6 @@
                                 <button type="submit" class="btn btn-sm btn-primary">Aggiorna</button>
                             </form>
                         </td>
-                        <td th:text="${subtotals[item.id]} + ' €'"></td>
                         <td>
                             <a th:href="@{/cart/remove(productId=${item.product.id})}" class="btn btn-sm btn-danger">Rimuovi</a>
                         </td>

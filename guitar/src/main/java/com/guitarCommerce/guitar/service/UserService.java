@@ -111,50 +111,51 @@ public class UserService {
         model.addAttribute("user", user);
     }
 
-    // Aggiorna l'username
-    @Transactional
-    public void updateUsername(String username, Principal principal, Model model) {
-        try {
-            User currentUser = getCurrentUser();  // recupero l'utente corrente
-            // se è nullo, improbabile
-            if (currentUser == null) {
-                model.addAttribute("error", "Errore: Utente non trovato. Riprova o contatta l'assistenza.");
-                model.addAttribute("errorUsername", "Errore: Utente non trovato. Riprova o contatta l'assistenza.");
-                return;
-            }
-            // cerco un utente con il nuovo username
-            User existingUser = userRepository.findByUsername(username).orElse(null);
-            // se lo trovo
-            if (existingUser != null) {
-                // se è il suo -.-
-                if (existingUser.getId() == currentUser.getId()) {
-                    model.addAttribute("error", "È il tuo username attuale.");
-                    model.addAttribute("errorUsername", "È il tuo username attuale.");
-                } else { // se di un altro
-                    model.addAttribute("error", "Username già in uso.");
-                    model.addAttribute("errorUsername", "Username già in uso.");
-                }
-            } else {
-                currentUser.setUsername(username);
-                updateUser(currentUser); // aggiorno l'user con il nuovo username
-
-                // ---  Aggiorno il contesto di autenticazione con il nuovo username
-                Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-                updateAuthenticationContext(username, currentUser.getPassword(), auth);
-
-                logger.info("Contesto di sicurezza aggiornato con nuovo username: {}", username);
-                model.addAttribute("success", "Username aggiornato con successo.");
-                model.addAttribute("successUsername", "Username aggiornato con successo.");
-            }
-            // ripasso l'user per la vista
-            model.addAttribute("user", currentUser);
-        } catch (RuntimeException e) {
-            // errore di qualche tipo
-            logger.error("Errore durante l'aggiornamento: {}", e.getMessage());
+ // Aggiorna l'username
+@Transactional
+public void updateUsername(String username, Principal principal, Model model) {
+    try {
+        User currentUser = getCurrentUser();  // recupero l'utente corrente
+        // se è nullo, improbabile
+        if (currentUser == null) {
             model.addAttribute("error", "Errore: Utente non trovato. Riprova o contatta l'assistenza.");
             model.addAttribute("errorUsername", "Errore: Utente non trovato. Riprova o contatta l'assistenza.");
+            return;
         }
+        // cerco un utente con il nuovo username
+        User existingUser = userRepository.findByUsername(username).orElse(null);
+        // se lo trovo
+        if (existingUser != null) {
+            // se è il suo -.-
+            if (existingUser.getId() == currentUser.getId()) {
+                model.addAttribute("error", "È il tuo username attuale.");
+                model.addAttribute("errorUsername", "È il tuo username attuale.");
+            } else { // se di un altro
+                model.addAttribute("error", "Username già in uso.");
+                model.addAttribute("errorUsername", "Username già in uso.");
+            }
+        } else {
+            currentUser.setUsername(username);
+            updateUser(currentUser); // aggiorno l'user con il nuovo username
+
+            // ---  Aggiorno il contesto di autenticazione con il nuovo username
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            updateAuthenticationContext(username, currentUser.getPassword(), auth);
+
+            logger.info("Contesto di sicurezza aggiornato con nuovo username: {}", username);
+            model.addAttribute("success", "Username aggiornato con successo.");
+            model.addAttribute("successUsername", "Username aggiornato con successo.");
+        }
+
+        // Assicurati che il modello contenga tutte le informazioni dell'utente
+        model.addAttribute("user", currentUser);
+    } catch (RuntimeException e) {
+        // errore di qualche tipo
+        logger.error("Errore durante l'aggiornamento: {}", e.getMessage());
+        model.addAttribute("error", "Errore: Utente non trovato. Riprova o contatta l'assistenza.");
+        model.addAttribute("errorUsername", "Errore: Utente non trovato. Riprova o contatta l'assistenza.");
     }
+}
 
     // ------------------------------
     // Aggiorna la password
@@ -219,7 +220,7 @@ public class UserService {
             User currentUser = getCurrentUser(); // recupero l'utente corrente
             // Valida il nuovo numero di telefono chiamando il metodo validatePhoneNumber()
             String error = validatePhoneNumber(user.getPhone(), currentUser.getId(), model);
-
+    
             // Se non ci sono errori di validazione (error è null), aggiorna il numero di telefono dell'utente corrente con il nuovo numero di telefono.
             if (error == null) {
                 currentUser.setPhone(user.getPhone());
@@ -227,7 +228,8 @@ public class UserService {
                 model.addAttribute("success", "Numero di telefono aggiornato con successo.");
                 model.addAttribute("successPhone", "Numero di telefono aggiornato con successo.");
             }
-
+    
+            // Assicurati che il modello contenga tutte le informazioni dell'utente
             model.addAttribute("user", currentUser);
         } catch (RuntimeException e) {
             model.addAttribute("error", "Errore: Impossibile aggiornare il numero di telefono. Riprova o contatta l'assistenza.");
@@ -237,16 +239,32 @@ public class UserService {
     }
 
     // -----------------------------
-    // Aggiorna l'indirizzo
-    @Transactional
-    public void updateAddress(User user, Principal principal) {
-        User currentUser = findByUsername(principal.getName());
-        currentUser.setStreet(user.getStreet());
-        currentUser.setCity(user.getCity());
-        currentUser.setPostalCode(user.getPostalCode());
-        currentUser.setCountry(user.getCountry());
-        updateUser(currentUser);
+   // Aggiorna l'indirizzo
+   @Transactional
+   public void updateAddress(User user, Principal principal) {
+       User currentUser = findByUsername(principal.getName());
+   
+       // Aggiorna solo i campi dell'indirizzo, mantenendo gli altri campi invariati
+       currentUser.setStreet(user.getStreet());
+       currentUser.setCity(user.getCity());
+       currentUser.setPostalCode(user.getPostalCode());
+       currentUser.setCountry(user.getCountry());
+   
+       // Aggiorna anche nome e cognome se presenti nel modulo
+       if (user.getFirstName() != null) {
+           currentUser.setFirstName(user.getFirstName());
+       }
+       if (user.getLastName() != null) {
+           currentUser.setLastName(user.getLastName());
+       }
+       if (user.getPhone() != null) {
+        currentUser.setPhone(user.getPhone());
     }
+   
+       // Salva l'utente aggiornato
+       updateUser(currentUser);
+   }
+
 
 
     

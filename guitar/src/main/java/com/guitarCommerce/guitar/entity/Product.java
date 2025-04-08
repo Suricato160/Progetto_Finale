@@ -39,16 +39,11 @@ public class Product {
     @Column(name = "reviews_count")
     private Integer reviewsCount = 0;
 
-
     // Campo transitorio per le immagini aggiuntive
     @Transient
     private List<String> additionalImages = new ArrayList<>();
 
-
-
-
     // ----- relazioni tra tabelle ---------
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categories_id", nullable = false)
@@ -56,8 +51,5 @@ public class Product {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderDetail> orderDetails;
-
-
-
     
 }

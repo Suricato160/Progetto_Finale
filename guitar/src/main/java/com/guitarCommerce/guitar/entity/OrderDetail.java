@@ -24,8 +24,6 @@ public class OrderDetail {
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
 
-
-
     // ----- relazioni tra tabelle ---------
 
     @ManyToOne(fetch = FetchType.LAZY)

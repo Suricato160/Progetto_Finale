@@ -19,8 +19,8 @@
                     <h1 class="display-4">NUOVA SERIE DI CHITARRE JBANEZ</h1>
                     <h2 class="text-accent">PAUL TIMMONS SIGNATURE</h2>
                     <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                    <p class="price display-5">$3,799</p>
-                    <a href="#" class="btn btn-accent">Vedi Prodotto</a>
+                    <p class="price display-5">€2000</p>
+                    <!-- <a href="#" class="btn btn-accent">Vedi Prodotto</a> -->
                 </div>
                 <div class="col-md-6 text-center">
                     <!-- <img src="/images/hero-guitar.avif" alt="Paul Timmons Signature Guitar" class="img-fluid"> -->
@@ -53,7 +53,7 @@
                             <p>Permesso Ufficiale</p>
                         </div>
                     </div>
-                    <a href="#" class="btn btn-accent mt-3">Chi Siamo</a>
+                    <!-- <a href="#" class="btn btn-accent mt-3">Chi Siamo</a> -->
                 </div>
             </div>
         </div>
@@ -66,17 +66,17 @@
                 <div class="col-md-3">
                     <i class="fas fa-shipping-fast fa-2x text-accent"></i>
                     <h4>Spedizione Veloce</h4>
-                    <p>Ordina oltre $1,000</p>
+                    <p>Ordina oltre €1,000</p>
                 </div>
                 <div class="col-md-3">
                     <i class="fas fa-money-bill-wave fa-2x text-accent"></i>
                     <h4>Grande Cashback</h4>
-                    <p>Ordina oltre $1,000</p>
+                    <p>Ordina oltre €1,000</p>
                 </div>
                 <div class="col-md-3">
                     <i class="fas fa-credit-card fa-2x text-accent"></i>
                     <h4>Pagamento Veloce</h4>
-                    <p>Ordina oltre $1,000</p>
+                    <p>Ordina oltre €1,000</p>
                 </div>
                 <div class="col-md-3">
                     <i class="fas fa-headset fa-2x text-accent"></i>
@@ -92,7 +92,7 @@
         <div class="container">
             <h2 class="text-center text-accent mb-5">Chitarre Più Vendute</h2>
             <div class="row">
-                <div class="col-md-4" th:each="product : ${products}">
+                <div class="col-md-4" th:each="product, iterStat : ${products}" th:if="${iterStat.index < 3}">
                     <div class="product-card">
                         <img th:src="${product.additionalImages != null and not #lists.isEmpty(product.additionalImages) ? product.additionalImages[0] : '/images/default.jpg'}" alt="Immagine prodotto" class="img-fluid" />
                         <h3 th:text="${product.name}">Nome Prodotto</h3>
@@ -100,6 +100,7 @@
                         <a th:href="@{/products/{id}(id=${product.id})}" class="btn btn-accent">Aggiungi al Carrello</a>
                     </div>
                 </div>
+                
             </div>
         </div>
     </section>
@@ -125,52 +126,6 @@
         </div>
     </section>
 
-    <!-- Sezione Blog -->
-    <!-- <section class="blog-section py-5">
-        <div class="container">
-            <h2 class="text-center text-accent mb-5">Ultime Notizie & Blog</h2>
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="blog-card">
-                        <img src="/images/blog1.avif" alt="Blog 1" class="img-fluid">
-                        <h4>La Più Grande Collezione di Chitarre nel 2023</h4>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                        <a href="#" class="btn btn-accent">Leggi di Più</a>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="blog-card">
-                        <img src="/images/blog2.avif" alt="Blog 2" class="img-fluid">
-                        <h4>5 Preparativi da Fare Prima di Usare le Chitarre</h4>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                        <a href="#" class="btn btn-accent">Leggi di Più</a>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="blog-card">
-                        <img src="/images/blog3.avif" alt="Blog 3" class="img-fluid">
-                        <h4>Scopri le Nuove Chitarre per Migliorare la Tua Vita</h4>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                        <a href="#" class="btn btn-accent">Leggi di Più</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section> -->
-
-    <!-- Sezione Newsletter -->
-    <!-- <section class="newsletter-section py-5">
-        <div class="container">
-            <h2 class="text-accent">Iscriviti alla Nostra Newsletter</h2>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-            <form>
-                <div class="input-group mb-3">
-                    <input type="email" class="form-control" placeholder="Inserisci la tua email" aria-label="Email">
-                    <button class="btn btn-accent" type="submit">Iscriviti</button>
-                </div>
-            </form>
-        </div>
-    </section> -->
 
     <!-- Footer -->
     <div th:replace="~{fragments :: footer}"></div>

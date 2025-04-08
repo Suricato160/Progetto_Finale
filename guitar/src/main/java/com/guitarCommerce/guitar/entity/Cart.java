@@ -22,6 +22,9 @@ public class Cart {
     @Column(name = "added_at")
     private LocalDateTime addedAt;
 
+
+    // -------- relazioni tra le tabelle -------------
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "users_id")
     private User user;

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.guitarCommerce.guitar.entity.User;
 
+// ======================================= ok
 
 
 @Service
@@ -23,11 +24,18 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("Utente non trovato: " + username);
         }
-        String role = user.getRole() != null ? user.getRole().replace("ROLE_", "") : "USER"; // Rimuovi prefisso e default a "USER"
+
+        // Determina il ruolo dell'utente
+        String role = "USER";
+        if (user.getRole() != null) {
+            role = user.getRole().replace("ROLE_", "");
+        }
+
+        // Costruisce e restituisce l'oggetto UserDetails
         return org.springframework.security.core.userdetails.User
             .withUsername(user.getUsername())
             .password(user.getPassword())
-            .roles(role) // Passa il ruolo come stringa singola
+            .roles(role)
             .build();
     }
 }
