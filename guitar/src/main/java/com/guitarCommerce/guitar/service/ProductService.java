@@ -67,6 +67,7 @@ public class ProductService {
         // logger.info("Prodotto: {}, Immagini: {}", product.getName() != null ? product.getName() : "Nome non disponibile", product.getAdditionalImages());
     }
 
+// ----------------------
     // creo la lista dei path delle immagini
     public List<String> loadAdditionalImages(int productId) {
         // apro la lista
@@ -74,15 +75,22 @@ public class ProductService {
         try {
             // ottengo il percorso della directory associata al prodotto
             Path productDirPath = getProductDirPath(productId);
+            // conversto in un oggetto file
             File productDir = productDirPath.toFile();
+            // Controlla se la directory esiste e se è effettivamente una directory.
             if (productDir.exists() && productDir.isDirectory()) {
+                // Ottiene un elenco di file nella directory che terminano con l'estensione .jpg.
                 File[] files = productDir.listFiles((dir, name) -> name.endsWith(".jpg"));
+                // controllo se l'elenco non sia vuoto
                 if (files != null) {
+                    // per ogni file costruisco il percorso e lo aggiungo alla lista images
                     for (File file : files) {
                         String imagePath = "/products/" + productId + "/" + file.getName();
                         images.add(imagePath);
                     }
                 }
+
+                // ordino le immagini per far si che l'iimagine main sia al primo posto
                 images.sort((a, b) -> {
                     if (a.contains("main.jpg"))
                         return -1;
@@ -99,7 +107,7 @@ public class ProductService {
     }
 
     // -------------------------------
-
+    // rinomino l'immagine nel folder
     @Transactional
     public void renameImagesInFolder(int productId) {
         try {
