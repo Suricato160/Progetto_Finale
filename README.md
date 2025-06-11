@@ -18,3 +18,7 @@ Questo progetto è il lavoro finale del corso di Programmazione Orientata agli O
 - **Altro:** Maven per la gestione delle dipendenze
 
 
+## Presentazione
+- una versione grafica del progetto è disponibile a questo link:
+- https://www.figma.com/board/ioegy18GVKuKzWC8v4xgo3/E-commerce?node-id=0-1&t=qbbXVJZz1A5kdEs7-1
+
